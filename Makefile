@@ -181,101 +181,173 @@ lib/vkbootstrap/VkBootstrap.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/lib/vkbootstrap/VkBootstrap.cpp.s
 .PHONY : lib/vkbootstrap/VkBootstrap.cpp.s
 
-src/ets_descriptor.o: src/ets_descriptor.cpp.o
-.PHONY : src/ets_descriptor.o
+src/eta_bindings.o: src/eta_bindings.cpp.o
+.PHONY : src/eta_bindings.o
 
 # target to build an object file
-src/ets_descriptor.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/ets_descriptor.cpp.o
-.PHONY : src/ets_descriptor.cpp.o
+src/eta_bindings.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/eta_bindings.cpp.o
+.PHONY : src/eta_bindings.cpp.o
 
-src/ets_descriptor.i: src/ets_descriptor.cpp.i
-.PHONY : src/ets_descriptor.i
+src/eta_bindings.i: src/eta_bindings.cpp.i
+.PHONY : src/eta_bindings.i
 
 # target to preprocess a source file
-src/ets_descriptor.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/ets_descriptor.cpp.i
-.PHONY : src/ets_descriptor.cpp.i
+src/eta_bindings.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/eta_bindings.cpp.i
+.PHONY : src/eta_bindings.cpp.i
 
-src/ets_descriptor.s: src/ets_descriptor.cpp.s
-.PHONY : src/ets_descriptor.s
+src/eta_bindings.s: src/eta_bindings.cpp.s
+.PHONY : src/eta_bindings.s
 
 # target to generate assembly for a file
-src/ets_descriptor.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/ets_descriptor.cpp.s
-.PHONY : src/ets_descriptor.cpp.s
+src/eta_bindings.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/eta_bindings.cpp.s
+.PHONY : src/eta_bindings.cpp.s
 
-src/ets_descriptor_allocator.o: src/ets_descriptor_allocator.cpp.o
-.PHONY : src/ets_descriptor_allocator.o
+src/eta_buffer_binding.o: src/eta_buffer_binding.cpp.o
+.PHONY : src/eta_buffer_binding.o
 
 # target to build an object file
-src/ets_descriptor_allocator.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/ets_descriptor_allocator.cpp.o
-.PHONY : src/ets_descriptor_allocator.cpp.o
+src/eta_buffer_binding.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/eta_buffer_binding.cpp.o
+.PHONY : src/eta_buffer_binding.cpp.o
 
-src/ets_descriptor_allocator.i: src/ets_descriptor_allocator.cpp.i
-.PHONY : src/ets_descriptor_allocator.i
+src/eta_buffer_binding.i: src/eta_buffer_binding.cpp.i
+.PHONY : src/eta_buffer_binding.i
 
 # target to preprocess a source file
-src/ets_descriptor_allocator.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/ets_descriptor_allocator.cpp.i
-.PHONY : src/ets_descriptor_allocator.cpp.i
+src/eta_buffer_binding.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/eta_buffer_binding.cpp.i
+.PHONY : src/eta_buffer_binding.cpp.i
 
-src/ets_descriptor_allocator.s: src/ets_descriptor_allocator.cpp.s
-.PHONY : src/ets_descriptor_allocator.s
+src/eta_buffer_binding.s: src/eta_buffer_binding.cpp.s
+.PHONY : src/eta_buffer_binding.s
 
 # target to generate assembly for a file
-src/ets_descriptor_allocator.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/ets_descriptor_allocator.cpp.s
-.PHONY : src/ets_descriptor_allocator.cpp.s
+src/eta_buffer_binding.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/eta_buffer_binding.cpp.s
+.PHONY : src/eta_buffer_binding.cpp.s
 
-src/ets_engine.o: src/ets_engine.cpp.o
-.PHONY : src/ets_engine.o
+src/eta_descriptor.o: src/eta_descriptor.cpp.o
+.PHONY : src/eta_descriptor.o
 
 # target to build an object file
-src/ets_engine.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/ets_engine.cpp.o
-.PHONY : src/ets_engine.cpp.o
+src/eta_descriptor.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/eta_descriptor.cpp.o
+.PHONY : src/eta_descriptor.cpp.o
 
-src/ets_engine.i: src/ets_engine.cpp.i
-.PHONY : src/ets_engine.i
+src/eta_descriptor.i: src/eta_descriptor.cpp.i
+.PHONY : src/eta_descriptor.i
 
 # target to preprocess a source file
-src/ets_engine.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/ets_engine.cpp.i
-.PHONY : src/ets_engine.cpp.i
+src/eta_descriptor.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/eta_descriptor.cpp.i
+.PHONY : src/eta_descriptor.cpp.i
 
-src/ets_engine.s: src/ets_engine.cpp.s
-.PHONY : src/ets_engine.s
+src/eta_descriptor.s: src/eta_descriptor.cpp.s
+.PHONY : src/eta_descriptor.s
 
 # target to generate assembly for a file
-src/ets_engine.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/ets_engine.cpp.s
-.PHONY : src/ets_engine.cpp.s
+src/eta_descriptor.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/eta_descriptor.cpp.s
+.PHONY : src/eta_descriptor.cpp.s
 
-src/ets_renderer.o: src/ets_renderer.cpp.o
-.PHONY : src/ets_renderer.o
+src/eta_device.o: src/eta_device.cpp.o
+.PHONY : src/eta_device.o
 
 # target to build an object file
-src/ets_renderer.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/ets_renderer.cpp.o
-.PHONY : src/ets_renderer.cpp.o
+src/eta_device.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/eta_device.cpp.o
+.PHONY : src/eta_device.cpp.o
 
-src/ets_renderer.i: src/ets_renderer.cpp.i
-.PHONY : src/ets_renderer.i
+src/eta_device.i: src/eta_device.cpp.i
+.PHONY : src/eta_device.i
 
 # target to preprocess a source file
-src/ets_renderer.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/ets_renderer.cpp.i
-.PHONY : src/ets_renderer.cpp.i
+src/eta_device.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/eta_device.cpp.i
+.PHONY : src/eta_device.cpp.i
 
-src/ets_renderer.s: src/ets_renderer.cpp.s
-.PHONY : src/ets_renderer.s
+src/eta_device.s: src/eta_device.cpp.s
+.PHONY : src/eta_device.s
 
 # target to generate assembly for a file
-src/ets_renderer.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/ets_renderer.cpp.s
-.PHONY : src/ets_renderer.cpp.s
+src/eta_device.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/eta_device.cpp.s
+.PHONY : src/eta_device.cpp.s
+
+src/eta_engine.o: src/eta_engine.cpp.o
+.PHONY : src/eta_engine.o
+
+# target to build an object file
+src/eta_engine.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/eta_engine.cpp.o
+.PHONY : src/eta_engine.cpp.o
+
+src/eta_engine.i: src/eta_engine.cpp.i
+.PHONY : src/eta_engine.i
+
+# target to preprocess a source file
+src/eta_engine.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/eta_engine.cpp.i
+.PHONY : src/eta_engine.cpp.i
+
+src/eta_engine.s: src/eta_engine.cpp.s
+.PHONY : src/eta_engine.s
+
+# target to generate assembly for a file
+src/eta_engine.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/eta_engine.cpp.s
+.PHONY : src/eta_engine.cpp.s
+
+src/eta_material.o: src/eta_material.cpp.o
+.PHONY : src/eta_material.o
+
+# target to build an object file
+src/eta_material.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/eta_material.cpp.o
+.PHONY : src/eta_material.cpp.o
+
+src/eta_material.i: src/eta_material.cpp.i
+.PHONY : src/eta_material.i
+
+# target to preprocess a source file
+src/eta_material.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/eta_material.cpp.i
+.PHONY : src/eta_material.cpp.i
+
+src/eta_material.s: src/eta_material.cpp.s
+.PHONY : src/eta_material.s
+
+# target to generate assembly for a file
+src/eta_material.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/eta_material.cpp.s
+.PHONY : src/eta_material.cpp.s
+
+src/eta_system.o: src/eta_system.cpp.o
+.PHONY : src/eta_system.o
+
+# target to build an object file
+src/eta_system.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/eta_system.cpp.o
+.PHONY : src/eta_system.cpp.o
+
+src/eta_system.i: src/eta_system.cpp.i
+.PHONY : src/eta_system.i
+
+# target to preprocess a source file
+src/eta_system.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/eta_system.cpp.i
+.PHONY : src/eta_system.cpp.i
+
+src/eta_system.s: src/eta_system.cpp.s
+.PHONY : src/eta_system.s
+
+# target to generate assembly for a file
+src/eta_system.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/eta_system.cpp.s
+.PHONY : src/eta_system.cpp.s
 
 src/main.o: src/main.cpp.o
 .PHONY : src/main.o
@@ -317,18 +389,27 @@ help:
 	@echo "... lib/vkbootstrap/VkBootstrap.o"
 	@echo "... lib/vkbootstrap/VkBootstrap.i"
 	@echo "... lib/vkbootstrap/VkBootstrap.s"
-	@echo "... src/ets_descriptor.o"
-	@echo "... src/ets_descriptor.i"
-	@echo "... src/ets_descriptor.s"
-	@echo "... src/ets_descriptor_allocator.o"
-	@echo "... src/ets_descriptor_allocator.i"
-	@echo "... src/ets_descriptor_allocator.s"
-	@echo "... src/ets_engine.o"
-	@echo "... src/ets_engine.i"
-	@echo "... src/ets_engine.s"
-	@echo "... src/ets_renderer.o"
-	@echo "... src/ets_renderer.i"
-	@echo "... src/ets_renderer.s"
+	@echo "... src/eta_bindings.o"
+	@echo "... src/eta_bindings.i"
+	@echo "... src/eta_bindings.s"
+	@echo "... src/eta_buffer_binding.o"
+	@echo "... src/eta_buffer_binding.i"
+	@echo "... src/eta_buffer_binding.s"
+	@echo "... src/eta_descriptor.o"
+	@echo "... src/eta_descriptor.i"
+	@echo "... src/eta_descriptor.s"
+	@echo "... src/eta_device.o"
+	@echo "... src/eta_device.i"
+	@echo "... src/eta_device.s"
+	@echo "... src/eta_engine.o"
+	@echo "... src/eta_engine.i"
+	@echo "... src/eta_engine.s"
+	@echo "... src/eta_material.o"
+	@echo "... src/eta_material.i"
+	@echo "... src/eta_material.s"
+	@echo "... src/eta_system.o"
+	@echo "... src/eta_system.i"
+	@echo "... src/eta_system.s"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"

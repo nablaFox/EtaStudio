@@ -1,11 +1,13 @@
 #pragma once
 
-#include "ets_scene.hpp"
+#include "eta_scene.hpp"
 
-namespace ets {
+namespace eta {
 
 class EtaInitialScene : public EtaSceneAsset {
 public:
+	using EtaSceneAsset::EtaSceneAsset;
+
 	void setup() override {
 		fmt::println("EtaInitialScene setup");
 
@@ -14,4 +16,4 @@ public:
 	}
 };
 
-}; // namespace ets
+}; // namespace eta

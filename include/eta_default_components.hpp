@@ -1,8 +1,8 @@
 #pragma once
 
-#include "ets_pch.hpp"
+#include "eta_pch.hpp"
 
-namespace ets {
+namespace eta {
 
 struct TransformComponent {
 	glm::vec3 position;
@@ -15,6 +15,8 @@ struct CameraComponent {
 	float aspect;
 	float near;
 	float far;
+	bool enabled;
+	glm::vec4 rect;
 };
 
 struct PointLightComponent {
@@ -28,4 +30,12 @@ struct DirectionalLightComponent {
 	float intensity;
 };
 
-}; // namespace ets
+struct MeshComponent {
+	std::string meshName;
+};
+
+struct RenderComponent {
+	std::string materialName;
+};
+
+}; // namespace eta

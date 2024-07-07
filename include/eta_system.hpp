@@ -1,8 +1,9 @@
 #pragma once
 
-#include "ets_scene.hpp"
+#include "eta_scene.hpp"
+#include "eta_engine.hpp"
 
-namespace ets {
+namespace eta {
 
 class EtaEngine;
 
@@ -13,9 +14,12 @@ public:
 
 	virtual void update() {}
 	virtual void awake() {}
+	virtual void sleep() {}
+
+	EtaSceneAsset& currentScene();
 
 protected:
 	EtaEngine& m_engine;
 };
 
-}; // namespace ets
+}; // namespace eta

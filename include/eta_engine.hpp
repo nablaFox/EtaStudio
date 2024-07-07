@@ -1,19 +1,15 @@
 #pragma once
 
-#include "ets_pch.hpp"
-#include "ets_system.hpp"
-#include "ets_texture.hpp"
-#include "ets_mesh.hpp"
-#include "ets_model.hpp"
-#include "ets_scene.hpp"
+#include "eta_pch.hpp"
+#include "eta_device.hpp"
 
-#include "ets_asset_manager.hpp"
+#include "eta_asset_manager.hpp"
 
-#include "ets_renderer.hpp"
+#include "eta_window.hpp"
 
-#include "ets_window.hpp"
+namespace eta {
 
-namespace ets {
+class EtaSystem;
 
 struct GameEngineSettings {
 	const char* appName = "Eta Engine";
@@ -34,13 +30,19 @@ public:
 	void switchScene(str name);
 
 	std::shared_ptr<EtaTextureAsset> createTexture(str name) { return m_assetManager.addAsset<EtaTextureAsset>(name); }
-	void initTexture(const std::shared_ptr<EtaTextureAsset>& texture);
+	std::shared_ptr<EtaTextureAsset> getTexture(str name) { return m_assetManager.getAsset<EtaTextureAsset>(name); }
 
 	std::shared_ptr<EtaMeshAsset> createMesh(str name) { return m_assetManager.addAsset<EtaMeshAsset>(name); }
-	void initMesh(const std::shared_ptr<EtaMeshAsset>& mesh);
+	std::shared_ptr<EtaMeshAsset> getMesh(str name) { return m_assetManager.getAsset<EtaMeshAsset>(name); }
 
 	std::shared_ptr<EtaModelAsset> createModel(str name) { return m_assetManager.addAsset<EtaModelAsset>(name); }
-	void initModel(const std::shared_ptr<EtaModelAsset>& model);
+	std::shared_ptr<EtaModelAsset> getModel(str name) { return m_assetManager.getAsset<EtaModelAsset>(name); }
+
+	std::shared_ptr<EtaShader> createShader(str name) { return m_assetManager.addAsset<EtaShader>(name); }
+	std::shared_ptr<EtaShader> getShader(str name) { return m_assetManager.getAsset<EtaShader>(name); }
+
+	std::shared_ptr<EtaMaterial> createMaterial(str name) { return m_assetManager.addAsset<EtaMaterial>(name); }
+	std::shared_ptr<EtaMaterial> getMaterial(str name) { return m_assetManager.getAsset<EtaMaterial>(name); }
 
 	void loadModelIntoScene(str modelName, str sceneName);
 
@@ -54,49 +56,23 @@ protected:
 	template <typename T>
 	void registerAsset(str name) {
 		static_assert(std::is_base_of<EtaAsset, T>::value, "T must derive from EtaAsset");
-
-		std::shared_ptr<T> asset = m_assetManager.addAsset<T>(name);
+		auto asset = m_assetManager.addAsset<T>(name);
 		asset->setup();
-
-		if constexpr (std::is_base_of<EtaTextureAsset, T>::value)
-			initTexture(asset);
-		else if constexpr (std::is_base_of<EtaMeshAsset, T>::value)
-			initMesh(std::static_pointer_cast<EtaMeshAsset>(asset));
-		else if constexpr (std::is_base_of<EtaModelAsset, T>::value)
-			initModel(asset);
+		asset->load();
 	};
 
-	template <typename T>
-	void registerSystem() {
+	template <typename T, typename... Args>
+	void registerSystem(Args&&... args) {
 		static_assert(std::is_base_of<EtaSystem, T>::value, "T must derive from EtaSystem");
-		m_systems.push_back(std::make_shared<T>(*this));
+		m_systems.push_back(std::make_shared<T>(*this, std::forward<Args>(args)...));
 	}
 
 private:
 	std::vector<std::shared_ptr<EtaSystem>> m_systems;
-	EtaAssetManager m_assetManager;
 	std::shared_ptr<EtaSceneAsset> m_currentScene;
-	EtaRenderer m_renderer;
 	EtaWindow m_window;
+	EtaDevice m_device;
+	EtaAssetManager m_assetManager{m_device};
 };
 
-class EtaApp : public EtaEngine {
-public:
-	void init(const GameEngineSettings& settings = EtaEngine::defaultSettings) {
-		EtaEngine::init(settings);
-		setup();
-
-		for (auto& system : m_systems)
-			system->awake();
-	}
-
-	void run() { EtaEngine::run(); }
-
-	void destroy() { EtaEngine::destroy(); }
-
-	virtual void setup() = 0;
-
-private:
-};
-
-}; // namespace ets
+}; // namespace eta

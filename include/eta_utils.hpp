@@ -1,8 +1,8 @@
 #pragma once
 
-#include "ets_pch.hpp"
+#include "eta_pch.hpp"
 
-namespace etsutil {
+namespace etautil {
 
 struct DeletionQueue {
 	std::deque<std::function<void()>> deletors;
@@ -17,4 +17,4 @@ struct DeletionQueue {
 	}
 };
 
-}; // namespace etsutil
+}; // namespace etautil

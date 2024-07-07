@@ -42,7 +42,7 @@ file(GLOB SHADER_FILES
 add_executable(${PROJECT_NAME} ${SRC_FILES})
 
 # Add precompiled header
-target_precompile_headers(${PROJECT_NAME} PRIVATE ${INCLUDE_PATH}/ets_pch.hpp)
+target_precompile_headers(${PROJECT_NAME} PRIVATE ${INCLUDE_PATH}/eta_pch.hpp)
 
 # Set output directory
 set_target_properties(${PROJECT_NAME} PROPERTIES

@@ -1,11 +1,11 @@
 #pragma once
 
-#include "ets_pch.hpp"
+#include "eta_pch.hpp"
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
-namespace ets {
+namespace eta {
 
 class EtaWindow {
 public:
@@ -35,4 +35,4 @@ private:
 	GLFWwindow* m_window;
 };
 
-}; // namespace ets
+}; // namespace eta

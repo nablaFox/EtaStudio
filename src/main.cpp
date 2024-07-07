@@ -1,6 +1,6 @@
-#include "../include/ets_engine.hpp"
+#include "../include/eta_app.hpp"
 
-using namespace ets;
+using namespace eta;
 
 struct DemoComponent {
 	int value;
@@ -8,6 +8,8 @@ struct DemoComponent {
 
 class DemoMesh : public EtaMeshAsset {
 public:
+	using EtaMeshAsset::EtaMeshAsset;
+
 	void setup() override {
 		fmt::println("DemoMesh setup");
 		//
@@ -16,6 +18,8 @@ public:
 
 class DemoScene : public EtaSceneAsset {
 public:
+	using EtaSceneAsset::EtaSceneAsset;
+
 	void setup() override {
 		fmt::println("DemoScene setup");
 
@@ -31,12 +35,12 @@ public:
 		auto& scene = m_engine.currentScene();
 
 		scene.getEntities<DemoComponent>().each([this](auto& component) {
-			fmt::println("DemoComponent value: {}", component.value);
+			// fmt::println("DemoComponent value: {}", component.value);
 
 			component.value++;
 
 			if (component.value % 10 == 0) {
-				m_engine.switchScene("InitialScene");
+				// m_engine.switchScene("InitialScene");
 			}
 		});
 
@@ -44,7 +48,7 @@ public:
 			transform.position.x += 1;
 
 			if ((int)transform.position.x % 10 == 0) {
-				m_engine.switchScene("DemoScene");
+				// m_engine.switchScene("DemoScene");
 			}
 		});
 

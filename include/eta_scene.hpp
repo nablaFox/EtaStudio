@@ -2,14 +2,16 @@
 
 #include <entt.hpp>
 
-#include "ets_pch.hpp"
-#include "ets_asset.hpp"
-#include "ets_default_components.hpp"
+#include "eta_pch.hpp"
+#include "eta_asset.hpp"
+#include "eta_default_components.hpp"
 
-namespace ets {
+namespace eta {
 
 class EtaSceneAsset : public EtaAsset {
 public:
+	using EtaAsset::EtaAsset;
+
 	entt::entity addEntity() {
 		auto entity = m_entities.create();
 		m_entities.emplace<TransformComponent>(entity, glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(1.0f));
@@ -40,4 +42,4 @@ private:
 	entt::registry m_entities;
 };
 
-}; // namespace ets
+}; // namespace eta
