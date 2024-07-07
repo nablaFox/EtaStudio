@@ -1,0 +1,178 @@
+material is not an asset. What we were specifying in material is actually the RendererComponent
+
+RendererComponent:
+ - pipelineConfigs
+ - material properties
+ - texture1 (hash name)
+ - texture2 (hash name)
+ - AllocatedImage image1;
+ - AllocatedImage image2;
+ - descriptorSet
+ - AllocatedBuffer* uboBuffer
+ - buffer offset (position of component data inside buffer)
+ - pipeline (hash name)
+ - pipelineBitMask
+ - materialsChanged
+ - texturesChanged
+
+to assign/update a rendering component we use a specialized method, that takes care of initialize the descriptor set.
+
+m_renderer->AssignRenderComponent(entity, configs)
+m_renderer->AssignRenderComponent(entity, configs, dsAllocator):
+- if buffer is nullptr create one, and set buffer offset to 0.
+- if no dsAllocator, use m_renderer.globalDsAllocator
+- for the descriptor set create one with 1 ubo and 2 textures
+- create default local ds layout
+- allocate ds using provided or the engine one
+- with the ds set uboBuffer to material properties
+- ds.writeImage(image1, assetMamager.get(texture1).data)
+- assign defaults to pipelineConfigs
+- assign descriptorSets to pipelineConfigs
+- pipeline = m_pipelinesManager.createPipeline(pipelineConfigs)
+(allocate on the stack)
+
+m_engine->UpdateRenderComponent(entity, configs):
+- set textureHasChanged and materialHasChanged
+- calculate new pipeline bitmask
+
+what we define with the class method will be preloaded.
+
+TextureAsset setup:
+- TextureData data
+- file path
+
+TextureAsse init:
+- if file loadFromFile, else set data to raw data
+
+MeshAsset setup:
+- file path
+- MeshData data (vertices, indices)
+- AllocatedBuffer indexBuffer
+- AllocateDBuffer vertexBuffer
+- DeviceAddress vertexBufferAddress
+
+MeshAsset init:
+- if file loadFromFile, else set data to raw data
+- uploadMesh(data.vertices, data.indices)
+
+glTFAsset setup:
+ - textures raw data or file path
+ - mesh raw data or file path
+ - materials raw data
+ - relationship between meshes and textures/material
+ - or just the path to the asset
+ - AllocatedBuffer buffer
+ - Descriptor Allocator
+
+glTFAsset init:
+- save the textures raw data in asset folder if necessary
+- save the mesh raw data in asset folder if necessary
+- create, init and register TextureAssets
+- create, init and register MeshAssets
+
+loadIntoScene("gltlf loader asset name"):
+- for each mesh asset create an entity with MeshComponent and RenderComponent. For assigning the renderComponent pass the material data of the current mesh.
+
+the assets will be relative to that scene. They can be reused because the data will be stored, and also because once it is initialized we can reference all the loaded assets.
+
+what about the asset manager? The asset manager keeps track of all the created assets. It stores shared_ptr to them.
+
+On rendering:
+- use MeshComponent to get the uploaded data of the mesh
+- if materialChanged use the descriptor set to update the ubo.
+- if texturesChanged use ds to update the two of them with the new texture data
+- check if pipeline is valid. If not create new one and update pipeline field
+
+engine:
+public:
+- init(): init renderer, register default systems, register default scene with a camera and a light
+- run(): 
+m_renderer.beginFrame()
+systemMamager.updateAll()
+m_renderer.endFrame()
+- destroy()
+
+protected:
+- createScene(name): initial is reserved
+- switchScene(name)
+- currentScene()
+- destroyScene(name): initial is reserved
+- createTexture(): combine creation and initialization
+- createMesh(name): return m_assetManager.createAsset<Mesh>(name)
+- createglTF()
+- initMesh()
+- initTexture()
+- initglTF()
+- loadglTFIntoScene(gltfName, sceneName)
+- registerSystem<T>(name): m_systemManager.registerSystem<T>(name, this)
+- registerAsset<T>(name): shared T asset =   m_assetManager.createAsset<Mesh>(name)
+asset->setup()
+based on T call initAssetX
+- registerScene<T>(name)
+- globalSceneData
+private:
+- m_sceneManager
+- m_assetManager
+- m_systemManager
+- m_renderer 
+
+
+application : engine 
+- init(): father.init(), setup(), systems.awakeAll()
+- virtual setup()
+
+demoApp : application
+- setup() ...
+
+demoApp app;
+app.init()
+app.run()
+app.destroy() 
+
+files:
+
+asset
+mesh_asset
+texture_asset
+asset_manager
+
+scene
+scene_manager
+
+default_components
+
+default_pipelines
+
+system:
+protected:
+- getEntities(): m_engine.currentScene().getEntities()
+- update()
+- awake()
+- sleep()
+- m_engine&
+
+(allocate systems on the stack since they last till the end of the program once registered)
+system_manager:
+public:
+- awakeAll()
+- updateAll()
+- sleepAll()
+- registerSystem<T>(name, m_engine): systems.push_back(T newSystem(m_engine))
+- std::vector<VkeSystem> systems;
+
+renderer:
+FrameData;
+public:
+- init(): setup Vulkan
+- UploadMesh()
+
+private:
+- m_descriptorSetAllocator (growable)
+- m_globalSceneDataDescriptor
+- m_swapchain
+- m_pipelinesManager
+- m_device
+
+rendering system:
+public:
+- we have access to m_engine.renderer
