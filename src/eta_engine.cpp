@@ -42,6 +42,8 @@ void EtaEngine::destroy() {
 	for (auto& system : m_systems)
 		system->sleep();
 
+	m_device.waitIdle();
+
 	m_assetManager.destroy();
 	m_device.destroy();
 	m_window.destroy();

@@ -26,6 +26,7 @@ public:
 
 public:
 	void load() override;
+	void destroy() override;
 	void update();
 
 private:

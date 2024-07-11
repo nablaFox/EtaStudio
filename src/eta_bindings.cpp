@@ -111,3 +111,11 @@ size_t EtaBindings::getHash() {
 
 	return std::hash<std::string>{}(bufferLayout + textureLayout);
 }
+
+void EtaBindings::destroy(EtaDevice& device) {
+	m_descriptorSetLayout.destroy(device);
+
+	for (auto& [binding, bufferBinding] : m_bufferBindings) {
+		device.destroyBuffer(bufferBinding->m_uboBuffer);
+	}
+}

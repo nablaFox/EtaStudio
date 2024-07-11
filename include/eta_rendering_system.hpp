@@ -85,8 +85,9 @@ public:
 			// update global scene data
 			m_globalSceneData.updateBuffers(m_device);
 
-			// draw mesh
+			// get mesh
 			auto mesh = m_engine.getMesh(meshInfo.meshName);
+			mesh->update();
 
 			// construct model matrix
 			glm::mat4 modelMatrix = glm::mat4(1.0f);

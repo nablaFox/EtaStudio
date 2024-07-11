@@ -27,6 +27,7 @@ class EtaBindings {
 
 public:
 	VkResult init(EtaDevice& device, EtaDescriptorAllocator& descriptorAllocator);
+	void destroy(EtaDevice& device);
 
 	void addBufferBinding(int binding, AllocatedBuffer& buffer, size_t offset);
 
@@ -41,8 +42,6 @@ public:
 	void setBufferProperty(int binding, const std::string& name, const glm::mat4& value);
 
 	void updateBuffers(EtaDevice& device);
-
-	void destroy(EtaDevice& device) { m_descriptorSetLayout.destroy(device); }
 
 	size_t getHash();
 

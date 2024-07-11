@@ -115,23 +115,15 @@ public:
 	}
 
 public:
-	VkResult createUBO(size_t allocSize, AllocatedBuffer& uboBuffer) {
-		return createBuffer(allocSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU, uboBuffer);
-	}
-	VkResult createBuffer(size_t allocSize, VkBufferUsageFlags usage, VmaMemoryUsage memoryUsage, AllocatedBuffer& buffer,
-						  bool temp = false);
+	VkResult createBuffer(size_t allocSize, VkBufferUsageFlags usage, VmaMemoryUsage memoryUsage, AllocatedBuffer& buffer);
+	VkResult createUBO(size_t allocSize, AllocatedBuffer& uboBuffer);
 	VkResult fillBuffer(AllocatedBuffer& buffer, void* data, size_t size, size_t offset);
 	VkResult uploadMesh(std::span<Vertex> vertices, std::span<Index> indices, GPUMeshData& meshData);
+	VkResult updateMesh(std::span<Vertex> vertices, std::span<Index> indices, GPUMeshData& meshData);
+	VkResult destroyMesh(GPUMeshData& meshData);
 	VkResult createStagingBuffer(size_t allocSize, AllocatedBuffer& stagingBuffer, void*& data);
-	VkResult destroyBuffer(AllocatedBuffer* buffer);
-	VkResult createCommandPool(VkCommandPool* pool, VkCommandPoolCreateFlags flags = 0);
-	VkResult allocateCommandBuffer(VkCommandBuffer* buffer, VkCommandPool pool);
-	VkResult createSemaphore(VkSemaphore* semaphore, VkSemaphoreCreateFlags flags = 0);
-	VkResult createFence(VkFence* fence, VkFenceCreateFlags flags = 0);
-	VkResult createShaderModule(std::vector<uint32_t>& code, VkShaderModule& shader);
-	VkResult destroyShaderModule(VkShaderModule& shader);
-	VkResult submitCommand(int submitCount, VkSubmitInfo2* submitInfo, VkFence fence = VK_NULL_HANDLE);
-	VkResult immediateSubmit(std::function<void(VkCommandBuffer cmd)>&& function);
+	VkResult destroyBuffer(AllocatedBuffer& buffer);
+
 	VkResult createImage(VkExtent3D size, VkFormat format, VkImageUsageFlags usage, AllocatedImage& handle,
 						 bool mipmapped = false);
 	VkResult createSampler(VkSampler* sampler, VkSamplerCreateInfo* info);
@@ -139,6 +131,18 @@ public:
 	VkResult createFilledImage(AllocatedImage& image, void* data, VkExtent3D size, VkFormat format, VkImageUsageFlags usage);
 	VkResult createDrawImage(VkExtent2D size, AllocatedImage& handle);
 	VkResult destroySampler(VkSampler* sampler);
+
+	VkResult createCommandPool(VkCommandPool* pool, VkCommandPoolCreateFlags flags = 0);
+	VkResult allocateCommandBuffer(VkCommandBuffer* buffer, VkCommandPool pool);
+
+	VkResult createSemaphore(VkSemaphore* semaphore, VkSemaphoreCreateFlags flags = 0);
+	VkResult createFence(VkFence* fence, VkFenceCreateFlags flags = 0);
+
+	VkResult createShaderModule(std::vector<uint32_t>& code, VkShaderModule& shader);
+	VkResult destroyShaderModule(VkShaderModule& shader);
+
+	VkResult submitCommand(int submitCount, VkSubmitInfo2* submitInfo, VkFence fence = VK_NULL_HANDLE);
+	VkResult immediateSubmit(std::function<void(VkCommandBuffer cmd)>&& function);
 
 private:
 	VkInstance m_vkInstance;

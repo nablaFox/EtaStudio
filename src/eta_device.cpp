@@ -102,8 +102,6 @@ VkResult EtaDevice::init(EtaWindow& window) {
 }
 
 void EtaDevice::destroy() {
-	waitIdle();
-
 	for (auto& [name, pipeline] : m_pipelines) {
 		pipeline->destroy(m_device);
 	}
@@ -120,8 +118,6 @@ VkResult EtaDevice::uploadMesh(std::span<Vertex> vertices, std::span<Index> indi
 	const size_t vertexBufferSize = vertices.size() * sizeof(Vertex);
 	const size_t indexBufferSize = indices.size() * sizeof(uint32_t);
 
-	meshData.indexCount = indices.size();
-
 	VK_RETURN(createBuffer(indexBufferSize, VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
 						   VMA_MEMORY_USAGE_GPU_ONLY, meshData.indexBuffer));
 
@@ -135,7 +131,16 @@ VkResult EtaDevice::uploadMesh(std::span<Vertex> vertices, std::span<Index> indi
 		.buffer = meshData.vertexBuffer.buffer,
 	};
 
+	meshData.indexCount = indices.size();
 	meshData.vertexBufferAddress = vkGetBufferDeviceAddress(m_device, &deviceAdressInfo);
+
+	return updateMesh(vertices, indices, meshData);
+}
+
+VkResult EtaDevice::updateMesh(std::span<Vertex> vertices, std::span<Index> indices, GPUMeshData& meshData) {
+	const size_t vertexBufferSize = vertices.size() * sizeof(Vertex);
+	const size_t indexBufferSize = indices.size() * sizeof(uint32_t);
+	meshData.indexCount = indices.size();
 
 	AllocatedBuffer staging;
 	void* data;
@@ -162,13 +167,15 @@ VkResult EtaDevice::uploadMesh(std::span<Vertex> vertices, std::span<Index> indi
 		vkCmdCopyBuffer(cmd, staging.buffer, meshData.indexBuffer.buffer, 1, &indexCopy);
 	});
 
-	VK_RETURN(destroyBuffer(&staging));
-
-	return VK_SUCCESS;
+	return destroyBuffer(staging);
 }
 
-VkResult EtaDevice::createBuffer(size_t allocSize, VkBufferUsageFlags usage, VmaMemoryUsage memoryUsage, AllocatedBuffer& buffer,
-								 bool temp) {
+VkResult EtaDevice::createUBO(size_t allocSize, AllocatedBuffer& uboBuffer) {
+	return createBuffer(allocSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU, uboBuffer);
+}
+
+VkResult EtaDevice::createBuffer(size_t allocSize, VkBufferUsageFlags usage, VmaMemoryUsage memoryUsage,
+								 AllocatedBuffer& buffer) {
 	VkBufferCreateInfo bufferInfo = {
 		.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
 		.pNext = nullptr,
@@ -186,14 +193,6 @@ VkResult EtaDevice::createBuffer(size_t allocSize, VkBufferUsageFlags usage, Vma
 	buffer.info.size = allocSize;
 	buffer.info.offset = 0;
 
-	if (!temp) {
-		auto bufferPtr = new AllocatedBuffer(buffer);
-		m_deletionQueue.push_function([this, bufferPtr]() {
-			destroyBuffer(bufferPtr);
-			delete bufferPtr;
-		});
-	}
-
 	return VK_SUCCESS;
 }
 
@@ -206,13 +205,19 @@ VkResult EtaDevice::fillBuffer(AllocatedBuffer& buffer, void* data, size_t size,
 }
 
 VkResult EtaDevice::createStagingBuffer(size_t allocSize, AllocatedBuffer& stagingBuffer, void*& data) {
-	VK_RETURN(createBuffer(allocSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY, stagingBuffer, true));
+	VK_RETURN(createBuffer(allocSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY, stagingBuffer));
 	data = stagingBuffer.allocation->GetMappedData();
 	return VK_SUCCESS;
 }
 
-VkResult EtaDevice::destroyBuffer(AllocatedBuffer* buffer) {
-	vmaDestroyBuffer(m_allocator, buffer->buffer, buffer->allocation);
+VkResult EtaDevice::destroyBuffer(AllocatedBuffer& buffer) {
+	vmaDestroyBuffer(m_allocator, buffer.buffer, buffer.allocation);
+	return VK_SUCCESS;
+}
+
+VkResult EtaDevice::destroyMesh(GPUMeshData& meshData) {
+	destroyBuffer(meshData.vertexBuffer);
+	destroyBuffer(meshData.indexBuffer);
 	return VK_SUCCESS;
 }
 
@@ -344,7 +349,7 @@ VkResult EtaDevice::fillImage(AllocatedImage& image, void* data) {
 								 VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 	});
 
-	VK_RETURN(destroyBuffer(&stagingBuffer));
+	VK_RETURN(destroyBuffer(stagingBuffer));
 
 	return VK_SUCCESS;
 }

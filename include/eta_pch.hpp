@@ -48,7 +48,10 @@ struct AllocatedImage : VulkanImage {
 struct AllocatedBuffer {
 	VkBuffer buffer;
 	VmaAllocation allocation;
-	VmaAllocationInfo info;
+	VmaAllocationInfo info = {
+		.offset = 0,
+		.size = 0,
+	};
 };
 
 struct GPUMeshData {

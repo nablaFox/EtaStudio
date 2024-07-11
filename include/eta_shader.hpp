@@ -13,18 +13,18 @@ public:
 	using EtaAsset::EtaAsset;
 
 	void load() override {
-		if (!loadShaderModuleFromFile(m_vertShaderPath, m_device, m_vertShaderModule))
+		if (!loadShaderModuleFromFile(m_vertShaderPath, m_vertShaderModule))
 			fmt::println("Failed to load vertex shader: {}", m_vertShaderPath);
 		else
 			fmt::println("Loaded vertex shader: {}", m_vertShaderPath);
 
-		if (!loadShaderModuleFromFile(m_fragShaderPath, m_device, m_fragShaderModule))
+		if (!loadShaderModuleFromFile(m_fragShaderPath, m_fragShaderModule))
 			return fmt::println("Failed to load fragment shader: {}", m_fragShaderPath);
 		else
 			fmt::println("Loaded fragment shader: {}", m_fragShaderPath);
 	}
 
-	static bool loadShaderModuleFromFile(std::string filePath, EtaDevice& device, VkShaderModule& shaderModule) {
+	bool loadShaderModuleFromFile(std::string filePath, VkShaderModule& shaderModule) {
 		std::ifstream shaderFile(filePath, std::ios::ate | std::ios::binary);
 
 		if (!shaderFile.is_open())
@@ -40,7 +40,7 @@ public:
 
 		shaderFile.close();
 
-		if (device.createShaderModule(buffer, shaderModule) != VK_SUCCESS)
+		if (m_device.createShaderModule(buffer, shaderModule) != VK_SUCCESS)
 			return false;
 
 		return true;
