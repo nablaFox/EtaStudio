@@ -24,9 +24,9 @@ class EtaEngine {
 public:
 	static constexpr GameEngineSettings defaultSettings{};
 
-	std::shared_ptr<EtaSceneAsset> createScene(str name) { return m_assetManager.addAsset<EtaSceneAsset>(name); }
-	EtaSceneAsset& currentScene() { return *m_currentScene; }
-	void destroyScene(str name) { m_assetManager.removeAsset<EtaSceneAsset>(name); }
+	std::shared_ptr<EtaScene> createScene(str name) { return m_assetManager.addAsset<EtaScene>(name); }
+	EtaScene& currentScene() { return *m_currentScene; }
+	void destroyScene(str name) { m_assetManager.removeAsset<EtaScene>(name); }
 	void switchScene(str name);
 
 	std::shared_ptr<EtaTextureAsset> createTexture(str name) { return m_assetManager.addAsset<EtaTextureAsset>(name); }
@@ -69,7 +69,7 @@ protected:
 
 private:
 	std::vector<std::shared_ptr<EtaSystem>> m_systems;
-	std::shared_ptr<EtaSceneAsset> m_currentScene;
+	std::shared_ptr<EtaScene> m_currentScene;
 	EtaWindow m_window;
 	EtaDevice m_device;
 	EtaAssetManager m_assetManager{m_device};

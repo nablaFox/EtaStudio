@@ -4,9 +4,9 @@
 
 namespace eta {
 
-class EtaInitialScene : public EtaSceneAsset {
+class EtaInitialScene : public EtaScene {
 public:
-	using EtaSceneAsset::EtaSceneAsset;
+	using EtaScene::EtaScene;
 
 	void setup() override {
 		fmt::println("EtaInitialScene setup");

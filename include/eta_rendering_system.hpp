@@ -77,17 +77,18 @@ public:
 		for (auto entity : entities) {
 			RenderComponent renderingInfo = entities.get<RenderComponent>(entity);
 			MeshComponent meshInfo = entities.get<MeshComponent>(entity);
-			auto material = m_engine.getMaterial(renderingInfo.materialName);
+
+			auto mesh = meshInfo.meshAsset;
+			auto material = renderingInfo.material;
 
 			// update material changes
-			material->updateBuffers(m_device);
+			material->update();
+
+			// update mesh changes
+			mesh->update();
 
 			// update global scene data
 			m_globalSceneData.updateBuffers(m_device);
-
-			// get mesh
-			auto mesh = m_engine.getMesh(meshInfo.meshName);
-			mesh->update();
 
 			// construct model matrix
 			glm::mat4 modelMatrix = glm::mat4(1.0f);

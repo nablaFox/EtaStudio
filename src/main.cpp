@@ -26,17 +26,17 @@ public:
 	};
 };
 
-class DemoScene : public EtaSceneAsset {
+class DemoScene : public EtaScene {
 public:
-	using EtaSceneAsset::EtaSceneAsset;
+	using EtaScene::EtaScene;
 
 	void setup() override {
 		fmt::println("DemoScene setup");
 
 		auto entity = addEntity();
 
-		addComponent<MeshComponent>(entity, "DemoMesh");
-		addComponent<RenderComponent>(entity, "default_metallic");
+		addRenderComponent(entity);
+		addMeshComponent(entity, "DemoMesh");
 
 		addEntity<CameraComponent>(45.0f,  // fov
 								   1.77f,  // aspect

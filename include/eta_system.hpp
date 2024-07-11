@@ -16,7 +16,7 @@ public:
 	virtual void awake() {}
 	virtual void sleep() {}
 
-	EtaSceneAsset& currentScene();
+	EtaScene& currentScene() { return m_engine.currentScene(); }
 
 protected:
 	EtaEngine& m_engine;

@@ -35,6 +35,8 @@ public:
 
 	void destroy() override;
 
+	void update() { EtaBindings::updateBuffers(m_device); }
+
 	// TEMP: should call this only on setup
 	void setTexture(uint32_t binding, str textureName);
 

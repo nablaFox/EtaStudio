@@ -373,6 +373,30 @@ src/eta_pipeline.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/eta_pipeline.cpp.s
 .PHONY : src/eta_pipeline.cpp.s
 
+src/eta_scene.o: src/eta_scene.cpp.o
+.PHONY : src/eta_scene.o
+
+# target to build an object file
+src/eta_scene.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/eta_scene.cpp.o
+.PHONY : src/eta_scene.cpp.o
+
+src/eta_scene.i: src/eta_scene.cpp.i
+.PHONY : src/eta_scene.i
+
+# target to preprocess a source file
+src/eta_scene.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/eta_scene.cpp.i
+.PHONY : src/eta_scene.cpp.i
+
+src/eta_scene.s: src/eta_scene.cpp.s
+.PHONY : src/eta_scene.s
+
+# target to generate assembly for a file
+src/eta_scene.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/eta_scene.cpp.s
+.PHONY : src/eta_scene.cpp.s
+
 src/eta_swapchain.o: src/eta_swapchain.cpp.o
 .PHONY : src/eta_swapchain.o
 
@@ -396,30 +420,6 @@ src/eta_swapchain.s: src/eta_swapchain.cpp.s
 src/eta_swapchain.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/eta_swapchain.cpp.s
 .PHONY : src/eta_swapchain.cpp.s
-
-src/eta_system.o: src/eta_system.cpp.o
-.PHONY : src/eta_system.o
-
-# target to build an object file
-src/eta_system.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/eta_system.cpp.o
-.PHONY : src/eta_system.cpp.o
-
-src/eta_system.i: src/eta_system.cpp.i
-.PHONY : src/eta_system.i
-
-# target to preprocess a source file
-src/eta_system.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/eta_system.cpp.i
-.PHONY : src/eta_system.cpp.i
-
-src/eta_system.s: src/eta_system.cpp.s
-.PHONY : src/eta_system.s
-
-# target to generate assembly for a file
-src/eta_system.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/eta_system.cpp.s
-.PHONY : src/eta_system.cpp.s
 
 src/eta_texture.o: src/eta_texture.cpp.o
 .PHONY : src/eta_texture.o
@@ -509,12 +509,12 @@ help:
 	@echo "... src/eta_pipeline.o"
 	@echo "... src/eta_pipeline.i"
 	@echo "... src/eta_pipeline.s"
+	@echo "... src/eta_scene.o"
+	@echo "... src/eta_scene.i"
+	@echo "... src/eta_scene.s"
 	@echo "... src/eta_swapchain.o"
 	@echo "... src/eta_swapchain.i"
 	@echo "... src/eta_swapchain.s"
-	@echo "... src/eta_system.o"
-	@echo "... src/eta_system.i"
-	@echo "... src/eta_system.s"
 	@echo "... src/eta_texture.o"
 	@echo "... src/eta_texture.i"
 	@echo "... src/eta_texture.s"

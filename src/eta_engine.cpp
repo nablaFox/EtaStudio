@@ -55,7 +55,7 @@ void EtaEngine::switchScene(str name) {
 		return;
 	}
 
-	auto scene = m_assetManager.getAsset<EtaSceneAsset>(name);
+	auto scene = m_assetManager.getAsset<EtaScene>(name);
 
 	if (!scene) {
 		fmt::print("Scene '{}' not found\n", name);

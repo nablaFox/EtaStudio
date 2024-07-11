@@ -8,7 +8,7 @@
 
 namespace eta {
 
-class EtaSceneAsset : public EtaAsset {
+class EtaScene : public EtaAsset {
 public:
 	using EtaAsset::EtaAsset;
 
@@ -37,6 +37,10 @@ public:
 	}
 
 	void removeEntity(entt::entity entity) { m_entities.destroy(entity); }
+
+	void addRenderComponent(entt::entity entity);
+	void addRenderComponent(entt::entity entity, str materialName);
+	void addMeshComponent(entt::entity entity, str meshName);
 
 private:
 	entt::registry m_entities;

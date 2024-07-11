@@ -4,6 +4,9 @@
 
 namespace eta {
 
+class EtaMeshAsset;
+class EtaMaterial;
+
 struct TransformComponent {
 	glm::vec3 position;
 	glm::vec3 rotation;
@@ -31,11 +34,11 @@ struct DirectionalLightComponent {
 };
 
 struct MeshComponent {
-	std::string meshName;
+	std::shared_ptr<EtaMeshAsset> meshAsset;
 };
 
 struct RenderComponent {
-	std::string materialName;
+	std::shared_ptr<EtaMaterial> material;
 };
 
 }; // namespace eta
