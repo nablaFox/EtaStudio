@@ -2,18 +2,24 @@
 
 #include "eta_bindings.hpp"
 #include "eta_asset.hpp"
-#include "eta_buffer_binding.hpp"
 
 namespace eta {
 class EtaShader;
 
 class EtaMaterial : public EtaAsset, public EtaBindings {
-	using EtaAsset::EtaAsset;
+	friend class EtaRenderingSystem;
 
 public:
-	void setFragShader(str shaderPath);
+	EtaMaterial(EtaDevice& device, EtaAssetManager& assetManager, str name, AllocatedBuffer buffer, size_t offset)
+		: EtaAsset(device, assetManager, name) {
+		EtaBindings::addBufferBinding(0, buffer, offset);
+	}
 
-	void setVertShader(str shaderPath);
+	EtaMaterial(EtaDevice& device, EtaAssetManager& assetManager, str name) : EtaAsset(device, assetManager, name) {
+		EtaBindings::addBufferBinding(0);
+	}
+
+	void setShader(str name);
 
 	void setProperty(str name, glm::vec4 value);
 
@@ -27,13 +33,13 @@ public:
 
 	void load() override;
 
+	void destroy() override;
+
 	// TEMP: should call this only on setup
 	void setTexture(uint32_t binding, str textureName);
 
 private:
-	EtaBufferBinding m_bufferBinding;
-	std::shared_ptr<EtaShader> m_fragShader;
-	std::shared_ptr<EtaShader> m_vertShader;
+	std::shared_ptr<EtaShader> m_shader;
 
 	AllocatedBuffer m_uboBuffer = {};
 	size_t m_bufferOffset = 0;

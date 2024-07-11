@@ -4,40 +4,31 @@
 
 using namespace eta;
 
-void EtaMaterial::setFragShader(str shaderPath) {
-	m_fragShader = m_manager.getAsset<EtaShader>(shaderPath);
-	if (m_fragShader == nullptr) {
+void EtaMaterial::setShader(str shaderPath) {
+	m_shader = m_manager.getAsset<EtaShader>(shaderPath);
+	if (m_shader == nullptr) {
 		fmt::print("Shader {} not found\n", shaderPath);
 	}
 }
 
-void EtaMaterial::setVertShader(str shaderPath) {
-	m_vertShader = m_manager.getAsset<EtaShader>(shaderPath);
-	if (m_vertShader == nullptr) {
-		fmt::print("Shader {} not found\n", shaderPath);
-	}
-}
+void EtaMaterial::setProperty(str name, float value) { EtaBindings::setBufferProperty(0, name, value); }
 
-void EtaMaterial::setProperty(str name, glm::vec4 value) { m_bufferBinding.setProperty(name, value); }
+void EtaMaterial::setProperty(str name, glm::vec4 value) { EtaBindings::setBufferProperty(0, name, value); }
 
-void EtaMaterial::setProperty(str name, glm::vec3 value) { m_bufferBinding.setProperty(name, value); }
+void EtaMaterial::setProperty(str name, glm::vec3 value) { EtaBindings::setBufferProperty(0, name, value); }
 
-void EtaMaterial::setProperty(str name, glm::vec2 value) { m_bufferBinding.setProperty(name, value); }
+void EtaMaterial::setProperty(str name, glm::vec2 value) { EtaBindings::setBufferProperty(0, name, value); }
 
-void EtaMaterial::setProperty(str name, float value) { m_bufferBinding.setProperty(name, value); }
-
-void EtaMaterial::setProperty(str name, glm::mat4 value) { m_bufferBinding.setProperty(name, value); }
+void EtaMaterial::setProperty(str name, glm::mat4 value) { EtaBindings::setBufferProperty(0, name, value); }
 
 void EtaMaterial::load() {
-	if (m_descriptorAllocator == nullptr) {
-		m_descriptorAllocator = std::make_shared<EtaDescriptorAllocator>();
-	}
-
-	m_bufferBinding.updateBuffer(m_device, m_uboBuffer, m_descriptorSet, m_bufferOffset);
-	addBufferBinding(0, m_bufferBinding);
+	if (m_descriptorAllocator == nullptr)
+		m_descriptorAllocator = m_device.getGlobalDescriptorAllocator();
 
 	EtaBindings::init(m_device, *m_descriptorAllocator);
 }
+
+void EtaMaterial::destroy() { EtaBindings::destroy(m_device); }
 
 // TEMP: should call this only on setup
 void EtaMaterial::setTexture(uint32_t binding, str textureName) {

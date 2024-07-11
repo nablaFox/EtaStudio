@@ -75,6 +75,52 @@ public:
 			m_materialAssets.erase(name);
 	}
 
+	// TODO: oh my. this is a mess. need to refactor this
+	void destroy() {
+		for (auto& [name, asset] : m_meshAssets) {
+			fmt::print("Destroying mesh asset {}\n", name);
+			if (asset)
+				asset->destroy();
+		}
+
+		for (auto& [name, asset] : m_textureAssets) {
+			fmt::print("Destroying texture asset {}\n", name);
+			if (asset)
+				asset->destroy();
+		}
+
+		for (auto& [name, asset] : m_modelAssets) {
+			fmt::print("Destroying model asset {}\n", name);
+			if (asset)
+				asset->destroy();
+		}
+
+		for (auto& [name, asset] : m_sceneAssets) {
+			fmt::print("Destroying scene asset {}\n", name);
+			if (asset)
+				asset->destroy();
+		}
+
+		for (auto& [name, asset] : m_shaderAssets) {
+			fmt::print("Destroying shader asset {}\n", name);
+			if (asset)
+				asset->destroy();
+		}
+
+		for (auto& [name, asset] : m_materialAssets) {
+			fmt::print("Destroying material asset {}\n", name);
+			if (asset)
+				asset->destroy();
+		}
+
+		m_meshAssets.clear();
+		m_textureAssets.clear();
+		m_modelAssets.clear();
+		m_sceneAssets.clear();
+		m_shaderAssets.clear();
+		m_materialAssets.clear();
+	}
+
 	EtaDevice& getDevice() { return m_device; }
 
 private:

@@ -1,19 +1,20 @@
 #pragma once
 
+#include "eta_bindings.hpp"
 #include "eta_pch.hpp"
-#include "eta_window.hpp"
+#include "eta_graphics_pipeline.hpp"
 #include "eta_utils.hpp"
 #include "eta_descriptor.hpp"
 #include "eta_swapchain.hpp"
 
 namespace eta {
 
-class EtaMeshAsset;
-class EtaMaterial;
-class EtaBindings;
-class EtaPipeline;
+class EtaWindow;
 
 class EtaDevice {
+	friend class EtaSwapchain;
+
+public:
 	struct FrameData {
 		VkSemaphore _swapchainSemaphore, _renderSemaphore;
 		VkFence _renderFence;
@@ -22,74 +23,168 @@ class EtaDevice {
 		VkCommandBuffer _commandBuffer;
 
 		etautil::DeletionQueue _deletionQueue;
+	};
 
-		EtaDescriptorAllocator _globalDescriptorAllocator;
+	struct ImmediateData {
+		VkCommandBuffer _commandBuffer;
+		VkCommandPool _commandPool;
+		VkFence _fence;
+	};
+
+	struct DrawPushConstants {
+		VkDeviceAddress _vertexBufferAddress;
+		glm::mat4 _model;
+	};
+
+	struct DrawCallOpts {
+		GPUMeshData meshData;
+		VkDeviceAddress vertexBufferAddress;
+		VkShaderModule vertexShader;
+		VkShaderModule fragmentShader;
+		glm::mat4 model;
 	};
 
 public:
 	static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
+	static constexpr bool ENABLE_VALIDATION_LAYERS = true;
 
-	VkResult init(const EtaWindow& window);
+	VkResult init(EtaWindow& window);
 
 	void destroy();
 
 	VkDevice getDevice() const { return m_device; }
 
-	AllocatedBuffer createUBO(size_t allocSize) {
-		return createBuffer(allocSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
-	}
+	std::shared_ptr<EtaDescriptorAllocator> getGlobalDescriptorAllocator() { return m_globalDescriptorAllocator; }
 
-	AllocatedBuffer createBuffer(size_t allocSize, VkBufferUsageFlags usage, VmaMemoryUsage memoryUsage);
+	VkResult startFrame(AllocatedImage& drawImage);
+	VkResult endFrame(AllocatedImage& drawImage);
 
-	// TODO: change these parameters to more raw data
-	// instead of material and scene data, use descriptor sets
-	// instead of mesh, use vertex buffer address, etc
+	VkCommandBuffer& currentCmd() { return getCurrentFrame()._commandBuffer; }
 
-	template <typename... Bindings>
-	void drawMesh(const EtaMeshAsset& mesh, const glm::mat4& modelMatrix, const EtaMaterial& material, Bindings&&... bindings) {}
+	FrameData& getCurrentFrame() { return m_frames[m_currentFrame % MAX_FRAMES_IN_FLIGHT]; }
 
-	VkResult drawFrame();
-	VkResult endFrame();
-
-	EtaDescriptorAllocator& getGlobalDescriptorAllocator() {
-		return m_frames[m_currentFrame % MAX_FRAMES_IN_FLIGHT]._globalDescriptorAllocator;
-	}
+	void waitIdle() { vkDeviceWaitIdle(m_device); }
 
 	template <typename... Bindings>
-	std::shared_ptr<EtaPipeline> getPipeline(EtaMaterial& material, Bindings&&... bindings) {
-		size_t bitmask = calculateBitmask(material, bindings...);
+	void drawGeometry(DrawCallOpts& drawOpts, GraphicsPipelineConfigs& pipelineConfigs, Bindings&&... bindings) {
+		auto cmd = currentCmd();
+
+		RenderingConfigs renderingConfigs = {pipelineConfigs, drawOpts.vertexShader, drawOpts.fragmentShader};
+
+		auto pipeline = std::static_pointer_cast<EtaGraphicsPipeline>(getGraphicsPipeline(renderingConfigs, bindings...));
+
+		auto bindDescriptorSets = [&cmd, &pipeline](auto& binding, int index) {
+			pipeline->bindDescriptorSet(cmd, binding.getDescriptorSet(), index);
+		};
+
+		int i = 0;
+		((bindDescriptorSets(bindings, i++)), ...);
+
+		fmt::print("Drawing geometry\n");
+		DrawPushConstants pushConstants = {drawOpts.vertexBufferAddress, drawOpts.model};
+
+		pipeline->template pushConstants<DrawPushConstants>(cmd, pushConstants);
+
+		pipeline->bind(cmd);
+
+		vkCmdBindIndexBuffer(cmd, drawOpts.meshData.indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT32);
+		vkCmdDrawIndexed(cmd, drawOpts.meshData.indexCount, 1, 0, 0, 0);
+	}
+
+	template <typename... Bindings>
+	std::shared_ptr<EtaPipeline> getGraphicsPipeline(RenderingConfigs& configs, Bindings&&... bindings) {
+		size_t bitmask = calculateHash(configs, bindings...); // TODO: avoid recalculating hash every time
 		if (m_pipelines.find(bitmask) != m_pipelines.end())
 			return m_pipelines[bitmask];
-		return registerPipeline(material, bindings...);
+
+		fmt::print("Pipeline not found, creating new one\n");
+		return registerGraphicsPipeline(configs, bindings...);
 	}
 
 	template <typename... Bindings>
-	std::shared_ptr<EtaPipeline> registerPipeline(EtaMaterial& material, Bindings&&... bindings) {
-		return nullptr;
+	std::shared_ptr<EtaPipeline> registerGraphicsPipeline(RenderingConfigs& configs, Bindings&&... bindings) {
+		auto newPipeline = std::make_shared<EtaGraphicsPipeline>();
+
+		newPipeline->setPushConstantRange(m_graphicsPushConstantRange);
+
+		([&](auto&& binding) { newPipeline->addSlotLayout(std::forward<decltype(binding)>(binding).getDescriptorSetLayout()); }(
+			 bindings),
+		 ...);
+
+		newPipeline->build(m_device, configs);
+		fmt::print("Pipeline built\n");
+
+		return m_pipelines[calculateHash(configs, bindings...)] = newPipeline;
+	}
+
+public:
+	VkResult createUBO(size_t allocSize, AllocatedBuffer& uboBuffer) {
+		return createBuffer(allocSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU, uboBuffer);
+	}
+	VkResult createBuffer(size_t allocSize, VkBufferUsageFlags usage, VmaMemoryUsage memoryUsage, AllocatedBuffer& buffer,
+						  bool temp = false);
+	VkResult fillBuffer(AllocatedBuffer& buffer, void* data, size_t size, size_t offset);
+	VkResult uploadMesh(std::span<Vertex> vertices, std::span<Index> indices, GPUMeshData& meshData);
+	VkResult createStagingBuffer(size_t allocSize, AllocatedBuffer& stagingBuffer, void*& data);
+	VkResult destroyBuffer(AllocatedBuffer* buffer);
+	VkResult createCommandPool(VkCommandPool* pool, VkCommandPoolCreateFlags flags = 0);
+	VkResult allocateCommandBuffer(VkCommandBuffer* buffer, VkCommandPool pool);
+	VkResult createSemaphore(VkSemaphore* semaphore, VkSemaphoreCreateFlags flags = 0);
+	VkResult createFence(VkFence* fence, VkFenceCreateFlags flags = 0);
+	VkResult createShaderModule(std::vector<uint32_t>& code, VkShaderModule& shader);
+	VkResult destroyShaderModule(VkShaderModule& shader);
+	VkResult submitCommand(int submitCount, VkSubmitInfo2* submitInfo, VkFence fence = VK_NULL_HANDLE);
+	VkResult immediateSubmit(std::function<void(VkCommandBuffer cmd)>&& function);
+	VkResult createImage(VkExtent3D size, VkFormat format, VkImageUsageFlags usage, AllocatedImage& handle,
+						 bool mipmapped = false);
+	VkResult createSampler(VkSampler* sampler, VkSamplerCreateInfo* info);
+	VkResult fillImage(AllocatedImage& image, void* data);
+	VkResult createFilledImage(AllocatedImage& image, void* data, VkExtent3D size, VkFormat format, VkImageUsageFlags usage);
+	VkResult createDrawImage(VkExtent2D size, AllocatedImage& handle);
+	VkResult destroySampler(VkSampler* sampler);
+
+private:
+	template <typename... Bindings>
+	size_t calculateHash(RenderingConfigs& configs, Bindings&&... bindings) {
+		size_t hash = 0;
+
+		etautil::hashCombine(hash, configs.pipelineConfigs.inputTopology);
+		etautil::hashCombine(hash, configs.pipelineConfigs.polygonMode);
+		etautil::hashCombine(hash, configs.pipelineConfigs.cullMode);
+		etautil::hashCombine(hash, configs.pipelineConfigs.frontFace);
+		etautil::hashCombine(hash, configs.pipelineConfigs.colorAttachmentFormat);
+		etautil::hashCombine(hash, configs.pipelineConfigs.depthFormat);
+		etautil::hashCombine(hash, configs.vertexShader);
+		etautil::hashCombine(hash, configs.fragmentShader);
+
+		(etautil::hashCombine(hash, bindings.getHash()), ...);
+
+		return hash;
 	}
 
 private:
-	template <typename T>
-	inline void hashCombine(std::size_t& seed, const T& value) {
-		std::hash<T> hasher;
-		seed ^= hasher(value) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-	}
+	VkInstance m_vkInstance;
+	VkDebugUtilsMessengerEXT m_debugMessenger;
+	VkSurfaceKHR m_surface;
+	VkPhysicalDevice m_chosenGPU;
+	VkDevice m_device;
+	ImmediateData m_immData;
+	EtaSwapchain m_swapchain{*this};
+	VkExtent2D m_drawExtent;
+	VkPushConstantRange m_graphicsPushConstantRange;
 
-	template <typename Material, typename... Bindings>
-	size_t calculateBitmask(Material& material, Bindings&&... bindings) {
-		size_t materialHash = material.getUniqueIdentifier();
+	VmaAllocator m_allocator;
 
-		(hashCombine(materialHash, bindings.getUniqueIdentifier()), ...);
+	VkQueue m_graphicsQueue;
+	uint32_t m_graphicsQueueFamily;
 
-		return materialHash;
-	}
-
-	VkDevice m_device = VK_NULL_HANDLE;
-	EtaSwapchain m_swapchain;
+	etautil::DeletionQueue m_deletionQueue;
 
 	std::unordered_map<size_t, std::shared_ptr<EtaPipeline>> m_pipelines;
 
-	std::vector<FrameData> m_frames;
+	std::shared_ptr<EtaDescriptorAllocator> m_globalDescriptorAllocator;
+
+	FrameData m_frames[MAX_FRAMES_IN_FLIGHT];
 	size_t m_currentFrame = 0;
 };
 

@@ -17,6 +17,7 @@ public:
 
 	virtual void setup() {}
 	virtual void load() {}
+	virtual void destroy() {}
 
 	str getName() const { return name; }
 

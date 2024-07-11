@@ -2,17 +2,16 @@
 
 using namespace eta;
 
-struct DemoComponent {
-	int value;
-};
-
 class DemoMesh : public EtaMeshAsset {
 public:
 	using EtaMeshAsset::EtaMeshAsset;
 
 	void setup() override {
-		fmt::println("DemoMesh setup");
-		//
+		setVertices({
+			{{-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}},
+		});
+
+		setIndices({0, 1, 2, 2, 3, 0});
 	};
 };
 
@@ -23,36 +22,17 @@ public:
 	void setup() override {
 		fmt::println("DemoScene setup");
 
-		addEntity<DemoComponent>();
-	};
-};
+		auto entity = addEntity();
 
-class DemoSystem : public EtaSystem {
-public:
-	using EtaSystem::EtaSystem;
+		addComponent<MeshComponent>(entity, "DemoMesh");
+		addComponent<RenderComponent>(entity, "default_metallic");
 
-	void update() override {
-		auto& scene = m_engine.currentScene();
-
-		scene.getEntities<DemoComponent>().each([this](auto& component) {
-			// fmt::println("DemoComponent value: {}", component.value);
-
-			component.value++;
-
-			if (component.value % 10 == 0) {
-				// m_engine.switchScene("InitialScene");
-			}
-		});
-
-		scene.getEntities<TransformComponent>().each([this](auto& transform) {
-			transform.position.x += 1;
-
-			if ((int)transform.position.x % 10 == 0) {
-				// m_engine.switchScene("DemoScene");
-			}
-		});
-
-		// something
+		addEntity<CameraComponent>(45.0f,  // fov
+								   1.77f,  // aspect
+								   0.1f,   // near
+								   100.0f, // far
+								   true,   // enabled
+								   glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
 	};
 };
 
@@ -61,7 +41,7 @@ class DemoApplication : public EtaApp {
 		registerAsset<DemoMesh>("DemoMesh");
 		registerAsset<DemoScene>("DemoScene");
 
-		registerSystem<DemoSystem>();
+		switchScene("DemoScene");
 	};
 };
 

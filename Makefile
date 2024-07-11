@@ -205,30 +205,6 @@ src/eta_bindings.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/eta_bindings.cpp.s
 .PHONY : src/eta_bindings.cpp.s
 
-src/eta_buffer_binding.o: src/eta_buffer_binding.cpp.o
-.PHONY : src/eta_buffer_binding.o
-
-# target to build an object file
-src/eta_buffer_binding.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/eta_buffer_binding.cpp.o
-.PHONY : src/eta_buffer_binding.cpp.o
-
-src/eta_buffer_binding.i: src/eta_buffer_binding.cpp.i
-.PHONY : src/eta_buffer_binding.i
-
-# target to preprocess a source file
-src/eta_buffer_binding.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/eta_buffer_binding.cpp.i
-.PHONY : src/eta_buffer_binding.cpp.i
-
-src/eta_buffer_binding.s: src/eta_buffer_binding.cpp.s
-.PHONY : src/eta_buffer_binding.s
-
-# target to generate assembly for a file
-src/eta_buffer_binding.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/eta_buffer_binding.cpp.s
-.PHONY : src/eta_buffer_binding.cpp.s
-
 src/eta_descriptor.o: src/eta_descriptor.cpp.o
 .PHONY : src/eta_descriptor.o
 
@@ -301,6 +277,30 @@ src/eta_engine.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/eta_engine.cpp.s
 .PHONY : src/eta_engine.cpp.s
 
+src/eta_graphics_pipeline.o: src/eta_graphics_pipeline.cpp.o
+.PHONY : src/eta_graphics_pipeline.o
+
+# target to build an object file
+src/eta_graphics_pipeline.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/eta_graphics_pipeline.cpp.o
+.PHONY : src/eta_graphics_pipeline.cpp.o
+
+src/eta_graphics_pipeline.i: src/eta_graphics_pipeline.cpp.i
+.PHONY : src/eta_graphics_pipeline.i
+
+# target to preprocess a source file
+src/eta_graphics_pipeline.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/eta_graphics_pipeline.cpp.i
+.PHONY : src/eta_graphics_pipeline.cpp.i
+
+src/eta_graphics_pipeline.s: src/eta_graphics_pipeline.cpp.s
+.PHONY : src/eta_graphics_pipeline.s
+
+# target to generate assembly for a file
+src/eta_graphics_pipeline.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/eta_graphics_pipeline.cpp.s
+.PHONY : src/eta_graphics_pipeline.cpp.s
+
 src/eta_material.o: src/eta_material.cpp.o
 .PHONY : src/eta_material.o
 
@@ -325,6 +325,78 @@ src/eta_material.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/eta_material.cpp.s
 .PHONY : src/eta_material.cpp.s
 
+src/eta_mesh.o: src/eta_mesh.cpp.o
+.PHONY : src/eta_mesh.o
+
+# target to build an object file
+src/eta_mesh.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/eta_mesh.cpp.o
+.PHONY : src/eta_mesh.cpp.o
+
+src/eta_mesh.i: src/eta_mesh.cpp.i
+.PHONY : src/eta_mesh.i
+
+# target to preprocess a source file
+src/eta_mesh.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/eta_mesh.cpp.i
+.PHONY : src/eta_mesh.cpp.i
+
+src/eta_mesh.s: src/eta_mesh.cpp.s
+.PHONY : src/eta_mesh.s
+
+# target to generate assembly for a file
+src/eta_mesh.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/eta_mesh.cpp.s
+.PHONY : src/eta_mesh.cpp.s
+
+src/eta_pipeline.o: src/eta_pipeline.cpp.o
+.PHONY : src/eta_pipeline.o
+
+# target to build an object file
+src/eta_pipeline.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/eta_pipeline.cpp.o
+.PHONY : src/eta_pipeline.cpp.o
+
+src/eta_pipeline.i: src/eta_pipeline.cpp.i
+.PHONY : src/eta_pipeline.i
+
+# target to preprocess a source file
+src/eta_pipeline.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/eta_pipeline.cpp.i
+.PHONY : src/eta_pipeline.cpp.i
+
+src/eta_pipeline.s: src/eta_pipeline.cpp.s
+.PHONY : src/eta_pipeline.s
+
+# target to generate assembly for a file
+src/eta_pipeline.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/eta_pipeline.cpp.s
+.PHONY : src/eta_pipeline.cpp.s
+
+src/eta_swapchain.o: src/eta_swapchain.cpp.o
+.PHONY : src/eta_swapchain.o
+
+# target to build an object file
+src/eta_swapchain.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/eta_swapchain.cpp.o
+.PHONY : src/eta_swapchain.cpp.o
+
+src/eta_swapchain.i: src/eta_swapchain.cpp.i
+.PHONY : src/eta_swapchain.i
+
+# target to preprocess a source file
+src/eta_swapchain.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/eta_swapchain.cpp.i
+.PHONY : src/eta_swapchain.cpp.i
+
+src/eta_swapchain.s: src/eta_swapchain.cpp.s
+.PHONY : src/eta_swapchain.s
+
+# target to generate assembly for a file
+src/eta_swapchain.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/eta_swapchain.cpp.s
+.PHONY : src/eta_swapchain.cpp.s
+
 src/eta_system.o: src/eta_system.cpp.o
 .PHONY : src/eta_system.o
 
@@ -348,6 +420,30 @@ src/eta_system.s: src/eta_system.cpp.s
 src/eta_system.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/eta_system.cpp.s
 .PHONY : src/eta_system.cpp.s
+
+src/eta_texture.o: src/eta_texture.cpp.o
+.PHONY : src/eta_texture.o
+
+# target to build an object file
+src/eta_texture.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/eta_texture.cpp.o
+.PHONY : src/eta_texture.cpp.o
+
+src/eta_texture.i: src/eta_texture.cpp.i
+.PHONY : src/eta_texture.i
+
+# target to preprocess a source file
+src/eta_texture.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/eta_texture.cpp.i
+.PHONY : src/eta_texture.cpp.i
+
+src/eta_texture.s: src/eta_texture.cpp.s
+.PHONY : src/eta_texture.s
+
+# target to generate assembly for a file
+src/eta_texture.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/eta_texture.cpp.s
+.PHONY : src/eta_texture.cpp.s
 
 src/main.o: src/main.cpp.o
 .PHONY : src/main.o
@@ -392,9 +488,6 @@ help:
 	@echo "... src/eta_bindings.o"
 	@echo "... src/eta_bindings.i"
 	@echo "... src/eta_bindings.s"
-	@echo "... src/eta_buffer_binding.o"
-	@echo "... src/eta_buffer_binding.i"
-	@echo "... src/eta_buffer_binding.s"
 	@echo "... src/eta_descriptor.o"
 	@echo "... src/eta_descriptor.i"
 	@echo "... src/eta_descriptor.s"
@@ -404,12 +497,27 @@ help:
 	@echo "... src/eta_engine.o"
 	@echo "... src/eta_engine.i"
 	@echo "... src/eta_engine.s"
+	@echo "... src/eta_graphics_pipeline.o"
+	@echo "... src/eta_graphics_pipeline.i"
+	@echo "... src/eta_graphics_pipeline.s"
 	@echo "... src/eta_material.o"
 	@echo "... src/eta_material.i"
 	@echo "... src/eta_material.s"
+	@echo "... src/eta_mesh.o"
+	@echo "... src/eta_mesh.i"
+	@echo "... src/eta_mesh.s"
+	@echo "... src/eta_pipeline.o"
+	@echo "... src/eta_pipeline.i"
+	@echo "... src/eta_pipeline.s"
+	@echo "... src/eta_swapchain.o"
+	@echo "... src/eta_swapchain.i"
+	@echo "... src/eta_swapchain.s"
 	@echo "... src/eta_system.o"
 	@echo "... src/eta_system.i"
 	@echo "... src/eta_system.s"
+	@echo "... src/eta_texture.o"
+	@echo "... src/eta_texture.i"
+	@echo "... src/eta_texture.s"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"

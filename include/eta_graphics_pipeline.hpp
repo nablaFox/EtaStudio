@@ -1,10 +1,10 @@
 #pragma once
 
-#include "eta_descriptor.hpp"
+#include "eta_pipeline.hpp"
 
-struct RenderingConfigs {};
+namespace eta {
 
-struct PipelineConfigs {
+struct GraphicsPipelineConfigs {
 	VkPrimitiveTopology inputTopology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 	VkPolygonMode polygonMode = VK_POLYGON_MODE_FILL;
 	VkCullModeFlags cullMode = VK_CULL_MODE_BACK_BIT;
@@ -12,44 +12,27 @@ struct PipelineConfigs {
 	VkPipelineColorBlendAttachmentState colorBlendAttachment = {};
 	VkFormat colorAttachmentFormat = VK_FORMAT_B8G8R8A8_UNORM;
 	VkFormat depthFormat = VK_FORMAT_D32_SFLOAT;
-	VkPipelineInputAssemblyStateCreateInfo inputAssembly = {};
-	VkPipelineRasterizationStateCreateInfo rasterizer = {};
-	VkPipelineMultisampleStateCreateInfo multisampling = {};
-	VkPipelineDepthStencilStateCreateInfo depthStencil = {};
-	VkPipelineRenderingCreateInfo renderInfo = {};
 };
 
-namespace eta {
-
-struct GPUDrawPushConstants {
-	glm::mat4 modelMatrix;
-	VkDeviceAddress vertexBuffer;
-};
-
-class EtaPipeline {
-public:
-	void bindDescriptorSet(VkCommandBuffer cmd, const EtaDescriptorSet& set);
-	void bind(VkCommandBuffer cmd);
-	virtual void build() = 0;
-
-protected:
-	VkPipeline m_pipeline;
-	VkPipelineLayout m_pipelineLayout;
+struct RenderingConfigs {
+	GraphicsPipelineConfigs pipelineConfigs;
+	VkShaderModule vertexShader;
+	VkShaderModule fragmentShader;
 };
 
 class EtaGraphicsPipeline : public EtaPipeline {
 public:
-	void build() override;
+	EtaGraphicsPipeline();
 
-	void pushConstants(VkCommandBuffer cmd, GPUDrawPushConstants* constants,
-					   VkShaderStageFlags stage = VK_SHADER_STAGE_VERTEX_BIT);
+	VkResult build(VkDevice device, RenderingConfigs& configs);
 
+private:
 	void setShaders(VkShaderModule vertexShader, VkShaderModule fragmentShader);
 	void setInputTopology(VkPrimitiveTopology topology);
 	void setPolygonMode(VkPolygonMode mode);
 	void setCullMode(VkCullModeFlags mode, VkFrontFace frontFace);
 
-	void setMultisamplingNone();
+	void disableMultisampling();
 
 	void disableBlending();
 	void enableBlendingAdditive();
@@ -60,8 +43,6 @@ public:
 	void setDepthFormat(VkFormat format);
 	void enableDepthTest(bool enable, VkCompareOp op = VK_COMPARE_OP_LESS);
 	void disableDepthTest();
-
-	void setPushConstantRange(VkPushConstantRange& bufferRange, uint32_t count = 1);
 
 	void setDescriptorSetLayout(const EtaDescriptorLayout& layout);
 
@@ -76,4 +57,4 @@ private:
 	VkPipelineRenderingCreateInfo m_renderInfo;
 };
 
-}; // namespace eta
+} // namespace eta

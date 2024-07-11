@@ -11,7 +11,13 @@ public:
 	void setup() override {
 		fmt::println("EtaInitialScene setup");
 
-		addEntity<CameraComponent>();
+		addEntity<CameraComponent>(45.0f,  // fov
+								   1.77f,  // aspect
+								   0.1f,   // near
+								   100.0f, // far
+								   true,   // enabled
+								   glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
+
 		addEntity<PointLightComponent>();
 	}
 };

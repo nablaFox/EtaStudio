@@ -8,6 +8,7 @@
 #include <span>
 #include <deque>
 #include <functional>
+#include <fstream>
 
 #include <VkBootstrap.h>
 #include <vulkan/vulkan.h>
@@ -22,6 +23,14 @@
 
 using str = const std::string&;
 
+using Index = uint32_t;
+
+struct Vertex {
+	glm::vec3 position;
+	glm::vec3 normal;
+	glm::vec2 texCoord;
+};
+
 struct VulkanImage {
 	VkImageLayout currentLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 	VkImage image;
@@ -29,15 +38,22 @@ struct VulkanImage {
 };
 
 struct AllocatedImage : VulkanImage {
-	VkImage image;
 	VmaAllocation allocation;
 	VkExtent3D imageExtent;
+	VkFormat imageFormat;
 };
 
 struct AllocatedBuffer {
 	VkBuffer buffer;
 	VmaAllocation allocation;
 	VmaAllocationInfo info;
+};
+
+struct GPUMeshData {
+	AllocatedBuffer indexBuffer;
+	AllocatedBuffer vertexBuffer;
+	VkDeviceAddress vertexBufferAddress;
+	size_t indexCount;
 };
 
 #define VK_RETURN(x)                                                                                                             \
@@ -52,6 +68,15 @@ struct AllocatedBuffer {
 		VkResult err = x;                                                                                                        \
 		if (err) {                                                                                                               \
 			fmt::print("Detected Vulkan Error: {}", string_VkResult(err));                                                       \
+			exit(err);                                                                                                           \
+		}                                                                                                                        \
+	} while (0)
+
+#define ETA_CHECK_MSG(x, msg)                                                                                                    \
+	do {                                                                                                                         \
+		VkResult err = x;                                                                                                        \
+		if (err) {                                                                                                               \
+			fmt::print("Detected Error: {} - {}", string_VkResult(err), msg);                                                    \
 			exit(err);                                                                                                           \
 		}                                                                                                                        \
 	} while (0)

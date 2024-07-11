@@ -1,6 +1,8 @@
 #pragma once
 
 #include "eta_material.hpp"
+#include "eta_asset_manager.hpp"
+#include "eta_shader.hpp"
 
 namespace eta {
 
@@ -9,8 +11,14 @@ class EtaMetallicMaterial : public EtaMaterial {
 
 public:
 	void setup() override {
-		setFragShader("metallic.frag");
-		setVertShader("metallic.vert");
+		auto shader = m_manager.addAsset<EtaShader>("default_metallic");
+
+		shader->setVertShader("assets/shaders/basic.vert.spv");
+		shader->setFragShader("assets/shaders/basic.frag.spv");
+
+		shader->load();
+
+		setShader("default_metallic");
 
 		setProperty("baseColor", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 		setProperty("metallic", 0.0f);
@@ -18,6 +26,8 @@ public:
 
 		setTexture(1, "default_white");
 		setTexture(2, "default_normal");
+
+		fmt::println("Loaded default_metallic material");
 	}
 };
 
