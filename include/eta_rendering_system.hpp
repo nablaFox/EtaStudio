@@ -25,22 +25,27 @@ public:
 	void awake() override {
 		ETA_CHECK(m_device.createDrawImage(m_window.getExtent(), m_drawImage));
 
-		m_basePipelineConfigs = {
+		m_baseRenderingConfigs = {
+			.inputTopology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
+			.polygonMode = VK_POLYGON_MODE_FILL,
+			.cullMode = VK_CULL_MODE_NONE,
+			.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE,
 			.colorAttachmentFormat = m_drawImage.imageFormat,
+			.depthFormat = VK_FORMAT_D32_SFLOAT,
+			.vertexShader = VK_NULL_HANDLE,
+			.fragmentShader = VK_NULL_HANDLE,
 		};
 
 		std::vector<std::string> defaultMaterials = {
 			"default_metallic",
 		};
 
-		RenderingConfigs renderingConfigs{.pipelineConfigs = m_basePipelineConfigs};
-
 		for (auto materialName : defaultMaterials) {
 			auto material = m_engine.getMaterial(materialName);
-			renderingConfigs.fragmentShader = material->m_shader->m_fragShaderModule;
-			renderingConfigs.vertexShader = material->m_shader->m_vertShaderModule;
+			m_baseRenderingConfigs.fragmentShader = material->m_shader->m_fragShaderModule;
+			m_baseRenderingConfigs.vertexShader = material->m_shader->m_vertShaderModule;
 
-			m_device.registerGraphicsPipeline(renderingConfigs, *material, m_globalSceneData);
+			m_device.registerGraphicsPipeline(m_baseRenderingConfigs, m_globalSceneData, *material);
 		}
 	}
 
@@ -86,15 +91,7 @@ public:
 			// construct model matrix
 			glm::mat4 modelMatrix = glm::mat4(1.0f);
 
-			EtaDevice::DrawCallOpts opts = {
-				.meshData = mesh->m_gpuMeshData,
-				.vertexBufferAddress = mesh->m_gpuMeshData.vertexBufferAddress,
-				.vertexShader = material->m_shader->m_vertShaderModule,
-				.fragmentShader = material->m_shader->m_fragShaderModule,
-				.model = modelMatrix,
-			};
-
-			m_device.drawGeometry(opts, m_basePipelineConfigs, *material, m_globalSceneData);
+			m_device.drawGeometry(mesh->m_gpuMeshData, modelMatrix, m_baseRenderingConfigs, m_globalSceneData, *material);
 		}
 	}
 
@@ -106,7 +103,7 @@ private:
 
 	AllocatedImage m_drawImage;
 
-	GraphicsPipelineConfigs m_basePipelineConfigs;
+	GraphicsPipelineConfigs m_baseRenderingConfigs;
 
 	EtaGlobalSceneData m_globalSceneData{m_device};
 };

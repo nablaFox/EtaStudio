@@ -9,7 +9,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(SRC_PATH src)
 set(INCLUDE_PATH include)
 set(BIN_PATH bin)
-set(SHADERS_PATH shaders)
+set(SHADERS_PATH assets/shaders)
 
 # Include directories
 include_directories(
@@ -64,14 +64,17 @@ target_link_libraries(${PROJECT_NAME}
 )
 
 # Custom command to compile shaders
+set(SPV_FILES "")
 foreach(SHADER ${SHADER_FILES})
     get_filename_component(FILE_NAME ${SHADER} NAME)
+    set(SPV_FILE ${SHADERS_PATH}/${FILE_NAME}.spv)
     add_custom_command(
-        OUTPUT ${SHADERS_PATH}/${FILE_NAME}.spv
-        COMMAND glslc ${SHADER} -o ${SHADERS_PATH}/${FILE_NAME}.spv
+        OUTPUT ${SPV_FILE}
+        COMMAND glslc ${SHADER} -o ${SPV_FILE}
         DEPENDS ${SHADER}
+        COMMENT "Compiling shader ${FILE_NAME}"
     )
-    list(APPEND SPV_FILES ${SHADERS_PATH}/${FILE_NAME}.spv)
+    list(APPEND SPV_FILES ${SPV_FILE})
 endforeach()
 
 # Add custom target for shaders
@@ -79,3 +82,6 @@ add_custom_target(shaders ALL DEPENDS ${SPV_FILES})
 
 # Ensure shaders are built before the main executable
 add_dependencies(${PROJECT_NAME} shaders)
+
+# Ensure shaders are cleaned with the main executable
+set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${SPV_FILES}")

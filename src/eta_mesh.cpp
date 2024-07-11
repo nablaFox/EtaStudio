@@ -6,7 +6,6 @@ using namespace eta;
 void EtaMeshAsset::load() {
 	if (m_meshFileData.filePath.empty()) {
 		ETA_CHECK_MSG(m_device.uploadMesh(m_vertices, m_indices, m_gpuMeshData), "Failed to upload mesh" + getName());
-		m_gpuMeshData.indexCount = m_indices.size();
 		fmt::print("Mesh {} uploaded\n", getName());
 		return;
 	}

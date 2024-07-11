@@ -87,7 +87,7 @@ VkResult EtaDevice::init(EtaWindow& window) {
 	VK_RETURN(m_globalDescriptorAllocator->initPool(m_device, 100, frameSizes));
 
 	m_graphicsPushConstantRange = {
-		.stageFlags = VK_SHADER_STAGE_ALL,
+		.stageFlags = VK_SHADER_STAGE_VERTEX_BIT,
 		.offset = 0,
 		.size = sizeof(DrawPushConstants),
 	};
@@ -120,26 +120,27 @@ VkResult EtaDevice::uploadMesh(std::span<Vertex> vertices, std::span<Index> indi
 	const size_t vertexBufferSize = vertices.size() * sizeof(Vertex);
 	const size_t indexBufferSize = indices.size() * sizeof(uint32_t);
 
-	GPUMeshData newSurface;
+	meshData.indexCount = indices.size();
+
 	VK_RETURN(createBuffer(indexBufferSize, VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-						   VMA_MEMORY_USAGE_GPU_ONLY, newSurface.indexBuffer));
+						   VMA_MEMORY_USAGE_GPU_ONLY, meshData.indexBuffer));
 
 	VK_RETURN(createBuffer(vertexBufferSize,
 						   VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT |
 							   VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT,
-						   VMA_MEMORY_USAGE_GPU_ONLY, newSurface.vertexBuffer));
+						   VMA_MEMORY_USAGE_GPU_ONLY, meshData.vertexBuffer));
 
 	VkBufferDeviceAddressInfo deviceAdressInfo{
 		.sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO,
-		.buffer = newSurface.vertexBuffer.buffer,
+		.buffer = meshData.vertexBuffer.buffer,
 	};
 
-	newSurface.vertexBufferAddress = vkGetBufferDeviceAddress(m_device, &deviceAdressInfo);
+	meshData.vertexBufferAddress = vkGetBufferDeviceAddress(m_device, &deviceAdressInfo);
 
 	AllocatedBuffer staging;
 	void* data;
 
-	ETA_CHECK(createStagingBuffer(vertexBufferSize + indexBufferSize, staging, data));
+	VK_RETURN(createStagingBuffer(vertexBufferSize + indexBufferSize, staging, data));
 
 	memcpy(data, vertices.data(), vertexBufferSize);
 	memcpy((char*)data + vertexBufferSize, indices.data(), indexBufferSize);
@@ -157,13 +158,11 @@ VkResult EtaDevice::uploadMesh(std::span<Vertex> vertices, std::span<Index> indi
 			.size = indexBufferSize,
 		};
 
-		vkCmdCopyBuffer(cmd, staging.buffer, newSurface.vertexBuffer.buffer, 1, &vertexCopy);
-		vkCmdCopyBuffer(cmd, staging.buffer, newSurface.indexBuffer.buffer, 1, &indexCopy);
+		vkCmdCopyBuffer(cmd, staging.buffer, meshData.vertexBuffer.buffer, 1, &vertexCopy);
+		vkCmdCopyBuffer(cmd, staging.buffer, meshData.indexBuffer.buffer, 1, &indexCopy);
 	});
 
 	VK_RETURN(destroyBuffer(&staging));
-
-	meshData = newSurface;
 
 	return VK_SUCCESS;
 }

@@ -20,12 +20,11 @@ public:
 
 		setShader("default_metallic");
 
-		setProperty("baseColor", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-		setProperty("metallic", 0.0f);
-		setProperty("roughness", 0.5f);
+		setProperty("colorFactors", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+		setProperty("metalRoughFactors", 0.0f);
 
-		setTexture(1, "default_white");
-		setTexture(2, "default_normal");
+		// setTexture(1, "default_white");
+		// setTexture(2, "default_normal");
 
 		fmt::println("Loaded default_metallic material");
 	}

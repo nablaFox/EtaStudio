@@ -14,12 +14,12 @@ public:
 		std::string filePath;
 	};
 
-	void setVertices(std::vector<Vertex> vertices) {
+	void setVertices(std::vector<Vertex>& vertices) {
 		m_vertices = vertices;
 		m_dirty = true;
 	}
 
-	void setIndices(std::vector<uint32_t> indices) {
+	void setIndices(std::vector<uint32_t>& indices) {
 		m_indices = indices;
 		m_dirty = true;
 	}
@@ -31,8 +31,8 @@ public:
 private:
 	MeshFileData m_meshFileData;
 	GPUMeshData m_gpuMeshData;
-	std::span<Vertex> m_vertices;
-	std::span<Index> m_indices;
+	std::vector<Vertex> m_vertices;
+	std::vector<Index> m_indices;
 
 	bool m_dirty = false;
 };

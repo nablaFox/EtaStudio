@@ -17,5 +17,7 @@ void main()  {
 
     // outFragColor = vec4(inColor * lightValue * sceneData.sunlightColor.w + sceneData.ambientColor.rgb, 1.0f);
 
-    outFragColor = vec4(inColor * lightValue * sceneData.sunlightColor.w + sceneData.ambientColor.rgb, 1.0f);
+    // outFragColor = vec4(inColor * lightValue * sceneData.sunlightColor.w + sceneData.ambientColor.rgb, 1.0f);
+
+	outFragColor = vec4(inColor, 1.0f);
 }

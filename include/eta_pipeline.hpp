@@ -8,9 +8,9 @@ namespace eta {
 class EtaPipeline {
 public:
 	template <typename T>
-	void pushConstants(VkCommandBuffer cmd, T& data) {
+	void pushConstants(VkCommandBuffer cmd, T& data, VkShaderStageFlags stage = VK_SHADER_STAGE_VERTEX_BIT) {
 		static_assert(std::is_standard_layout<T>::value, "T must be standard layout");
-		vkCmdPushConstants(cmd, m_pipelineLayout, VK_SHADER_STAGE_ALL, 0, sizeof(T), &data);
+		vkCmdPushConstants(cmd, m_pipelineLayout, stage, 0, sizeof(T), &data);
 	}
 
 	void setPushConstantRange(VkPushConstantRange& bufferRange, uint32_t count = 1);

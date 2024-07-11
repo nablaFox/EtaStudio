@@ -6,6 +6,7 @@
 #include "eta_utils.hpp"
 #include "eta_descriptor.hpp"
 #include "eta_swapchain.hpp"
+#include "eta_vulkan_images.hpp"
 
 namespace eta {
 
@@ -32,15 +33,12 @@ public:
 	};
 
 	struct DrawPushConstants {
-		VkDeviceAddress _vertexBufferAddress;
 		glm::mat4 _model;
+		VkDeviceAddress _vertexBufferAddress;
 	};
 
 	struct DrawCallOpts {
 		GPUMeshData meshData;
-		VkDeviceAddress vertexBufferAddress;
-		VkShaderModule vertexShader;
-		VkShaderModule fragmentShader;
 		glm::mat4 model;
 	};
 
@@ -66,12 +64,10 @@ public:
 	void waitIdle() { vkDeviceWaitIdle(m_device); }
 
 	template <typename... Bindings>
-	void drawGeometry(DrawCallOpts& drawOpts, GraphicsPipelineConfigs& pipelineConfigs, Bindings&&... bindings) {
+	void drawGeometry(GPUMeshData& meshData, glm::mat4 matrix, GraphicsPipelineConfigs& pipelineConfigs, Bindings&&... bindings) {
 		auto cmd = currentCmd();
 
-		RenderingConfigs renderingConfigs = {pipelineConfigs, drawOpts.vertexShader, drawOpts.fragmentShader};
-
-		auto pipeline = std::static_pointer_cast<EtaGraphicsPipeline>(getGraphicsPipeline(renderingConfigs, bindings...));
+		auto pipeline = std::static_pointer_cast<EtaGraphicsPipeline>(getGraphicsPipeline(pipelineConfigs, bindings...));
 
 		auto bindDescriptorSets = [&cmd, &pipeline](auto& binding, int index) {
 			pipeline->bindDescriptorSet(cmd, binding.getDescriptorSet(), index);
@@ -80,29 +76,30 @@ public:
 		int i = 0;
 		((bindDescriptorSets(bindings, i++)), ...);
 
-		fmt::print("Drawing geometry\n");
-		DrawPushConstants pushConstants = {drawOpts.vertexBufferAddress, drawOpts.model};
+		DrawPushConstants pushConstants = {
+			._model = matrix,
+			._vertexBufferAddress = meshData.vertexBufferAddress,
+		};
 
 		pipeline->template pushConstants<DrawPushConstants>(cmd, pushConstants);
-
 		pipeline->bind(cmd);
+		vkCmdBindIndexBuffer(cmd, meshData.indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT32);
 
-		vkCmdBindIndexBuffer(cmd, drawOpts.meshData.indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT32);
-		vkCmdDrawIndexed(cmd, drawOpts.meshData.indexCount, 1, 0, 0, 0);
+		vkCmdDrawIndexed(cmd, meshData.indexCount, 1, 0, 0, 0);
 	}
 
 	template <typename... Bindings>
-	std::shared_ptr<EtaPipeline> getGraphicsPipeline(RenderingConfigs& configs, Bindings&&... bindings) {
-		size_t bitmask = calculateHash(configs, bindings...); // TODO: avoid recalculating hash every time
+	std::shared_ptr<EtaPipeline> getGraphicsPipeline(GraphicsPipelineConfigs& configs, Bindings&&... bindings) {
+		size_t bitmask = EtaGraphicsPipeline::calculateHash(configs, bindings...); // TODO: avoid recalculating hash every time
 		if (m_pipelines.find(bitmask) != m_pipelines.end())
 			return m_pipelines[bitmask];
 
-		fmt::print("Pipeline not found, creating new one\n");
+		fmt::print("Pipeline not found, creating new one. Hash {} \n", bitmask);
 		return registerGraphicsPipeline(configs, bindings...);
 	}
 
 	template <typename... Bindings>
-	std::shared_ptr<EtaPipeline> registerGraphicsPipeline(RenderingConfigs& configs, Bindings&&... bindings) {
+	std::shared_ptr<EtaPipeline> registerGraphicsPipeline(GraphicsPipelineConfigs configs, Bindings&&... bindings) {
 		auto newPipeline = std::make_shared<EtaGraphicsPipeline>();
 
 		newPipeline->setPushConstantRange(m_graphicsPushConstantRange);
@@ -114,7 +111,7 @@ public:
 		newPipeline->build(m_device, configs);
 		fmt::print("Pipeline built\n");
 
-		return m_pipelines[calculateHash(configs, bindings...)] = newPipeline;
+		return m_pipelines[EtaGraphicsPipeline::calculateHash(configs, bindings...)] = newPipeline;
 	}
 
 public:
@@ -142,25 +139,6 @@ public:
 	VkResult createFilledImage(AllocatedImage& image, void* data, VkExtent3D size, VkFormat format, VkImageUsageFlags usage);
 	VkResult createDrawImage(VkExtent2D size, AllocatedImage& handle);
 	VkResult destroySampler(VkSampler* sampler);
-
-private:
-	template <typename... Bindings>
-	size_t calculateHash(RenderingConfigs& configs, Bindings&&... bindings) {
-		size_t hash = 0;
-
-		etautil::hashCombine(hash, configs.pipelineConfigs.inputTopology);
-		etautil::hashCombine(hash, configs.pipelineConfigs.polygonMode);
-		etautil::hashCombine(hash, configs.pipelineConfigs.cullMode);
-		etautil::hashCombine(hash, configs.pipelineConfigs.frontFace);
-		etautil::hashCombine(hash, configs.pipelineConfigs.colorAttachmentFormat);
-		etautil::hashCombine(hash, configs.pipelineConfigs.depthFormat);
-		etautil::hashCombine(hash, configs.vertexShader);
-		etautil::hashCombine(hash, configs.fragmentShader);
-
-		(etautil::hashCombine(hash, bindings.getHash()), ...);
-
-		return hash;
-	}
 
 private:
 	VkInstance m_vkInstance;

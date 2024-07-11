@@ -27,8 +27,10 @@ using Index = uint32_t;
 
 struct Vertex {
 	glm::vec3 position;
+	float uv_x;
 	glm::vec3 normal;
-	glm::vec2 texCoord;
+	float uv_y;
+	glm::vec4 color;
 };
 
 struct VulkanImage {

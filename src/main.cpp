@@ -7,11 +7,22 @@ public:
 	using EtaMeshAsset::EtaMeshAsset;
 
 	void setup() override {
-		setVertices({
-			{{-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}},
-		});
+		std::vector<Vertex> rect_vertices(4);
 
-		setIndices({0, 1, 2, 2, 3, 0});
+		rect_vertices[0].position = {0.5, -0.5, 0};
+		rect_vertices[1].position = {0.5, 0.5, 0};
+		rect_vertices[2].position = {-0.5, -0.5, 0};
+		rect_vertices[3].position = {-0.5, 0.5, 0};
+
+		rect_vertices[0].color = {0, 0, 0, 1};
+		rect_vertices[1].color = {0.5, 0.5, 0.5, 1};
+		rect_vertices[2].color = {1, 0, 0, 1};
+		rect_vertices[3].color = {0, 1, 0, 1};
+
+		std::vector<uint32_t> rect_indices = {0, 1, 2, 2, 1, 3};
+
+		setVertices(rect_vertices);
+		setIndices(rect_indices);
 	};
 };
 

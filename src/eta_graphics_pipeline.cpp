@@ -1,12 +1,9 @@
 #include "../include/eta_graphics_pipeline.hpp"
-#include "../include/eta_device.hpp"
-#include "../include/eta_descriptor.hpp"
 #include "../include/eta_vulkan_init.hpp"
 
 using namespace eta;
 
 EtaGraphicsPipeline::EtaGraphicsPipeline() {
-	m_shaderStages.clear();
 	m_colorBlendAttachment = {};
 	m_pipelineLayoutInfo = etainit::graphicsPipelineLayoutCreateInfo();
 
@@ -21,17 +18,18 @@ EtaGraphicsPipeline::EtaGraphicsPipeline() {
 	m_renderInfo = {.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO};
 }
 
-VkResult EtaGraphicsPipeline::build(VkDevice device, RenderingConfigs& configs) {
+VkResult EtaGraphicsPipeline::build(VkDevice device, GraphicsPipelineConfigs configs) {
 	m_pipelineLayoutInfo.setLayoutCount = m_descriptorSetLayouts.size();
 	m_pipelineLayoutInfo.pSetLayouts = m_descriptorSetLayouts.data();
 
 	VK_RETURN(vkCreatePipelineLayout(device, &m_pipelineLayoutInfo, nullptr, &m_pipelineLayout));
 
 	setShaders(configs.vertexShader, configs.fragmentShader);
-	setInputTopology(configs.pipelineConfigs.inputTopology);
-	setPolygonMode(configs.pipelineConfigs.polygonMode);
-	setCullMode(configs.pipelineConfigs.cullMode, configs.pipelineConfigs.frontFace);
-	setColorAttachmentFormat(configs.pipelineConfigs.colorAttachmentFormat);
+	setInputTopology(configs.inputTopology);
+	setPolygonMode(configs.polygonMode);
+	setCullMode(configs.cullMode, configs.frontFace);
+	setColorAttachmentFormat(configs.colorAttachmentFormat);
+	setDepthFormat(configs.depthFormat);
 
 	// TEMP
 	disableBlending();
@@ -86,7 +84,6 @@ VkResult EtaGraphicsPipeline::build(VkDevice device, RenderingConfigs& configs) 
 }
 
 void EtaGraphicsPipeline::setShaders(VkShaderModule vertexShader, VkShaderModule fragmentShader) {
-	m_shaderStages.clear();
 	m_shaderStages.push_back(etainit::pipelineShaderStageCreateInfo(VK_SHADER_STAGE_VERTEX_BIT, vertexShader));
 	m_shaderStages.push_back(etainit::pipelineShaderStageCreateInfo(VK_SHADER_STAGE_FRAGMENT_BIT, fragmentShader));
 }
