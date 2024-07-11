@@ -41,20 +41,25 @@ public:
 	std::shared_ptr<T> getAsset(const std::string& name) {
 		static_assert(std::is_base_of<EtaAsset, T>::value, "T must derive from EtaBaseAsset");
 
-		if constexpr (std::is_base_of<EtaMeshAsset, T>::value)
-			return m_meshAssets[name];
-		else if constexpr (std::is_base_of<EtaTextureAsset, T>::value)
-			return m_textureAssets[name];
-		else if constexpr (std::is_base_of<EtaModelAsset, T>::value)
-			return m_modelAssets[name];
-		else if constexpr (std::is_base_of<EtaScene, T>::value)
-			return m_sceneAssets[name];
-		else if constexpr (std::is_base_of<EtaShader, T>::value)
-			return m_shaderAssets[name];
-		else if constexpr (std::is_base_of<EtaMaterial, T>::value)
-			return m_materialAssets[name];
+		std::shared_ptr<T> assetToReturn;
 
-		return nullptr;
+		if constexpr (std::is_base_of<EtaMeshAsset, T>::value)
+			assetToReturn = m_meshAssets[name];
+		else if constexpr (std::is_base_of<EtaTextureAsset, T>::value)
+			assetToReturn = m_textureAssets[name];
+		else if constexpr (std::is_base_of<EtaModelAsset, T>::value)
+			assetToReturn = m_modelAssets[name];
+		else if constexpr (std::is_base_of<EtaScene, T>::value)
+			assetToReturn = m_sceneAssets[name];
+		else if constexpr (std::is_base_of<EtaShader, T>::value)
+			assetToReturn = m_shaderAssets[name];
+		else if constexpr (std::is_base_of<EtaMaterial, T>::value)
+			assetToReturn = m_materialAssets[name];
+
+		if (!assetToReturn)
+			fmt::print("Asset {} not found\n", name);
+
+		return assetToReturn;
 	}
 
 	template <typename T>

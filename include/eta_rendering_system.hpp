@@ -26,7 +26,7 @@ public:
 		ETA_CHECK(m_device.createDrawImage(m_window.getExtent(), m_drawImage));
 
 		m_baseRenderingConfigs = {
-			.inputTopology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
+			.inputTopology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST,
 			.polygonMode = VK_POLYGON_MODE_FILL,
 			.cullMode = VK_CULL_MODE_NONE,
 			.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE,
@@ -54,7 +54,7 @@ public:
 		m_globalSceneData.destroy(m_device);
 	}
 
-	void update() override {
+	void update(float _) override {
 		ETA_CHECK(m_device.startFrame(m_drawImage));
 
 		auto cameras = currentScene().getEntities<CameraComponent>();
@@ -80,6 +80,10 @@ public:
 
 			auto mesh = meshInfo.meshAsset;
 			auto material = renderingInfo.material;
+
+			// check if mesh and material are valid
+			if (!mesh || !material)
+				continue;
 
 			// update material changes
 			material->update();

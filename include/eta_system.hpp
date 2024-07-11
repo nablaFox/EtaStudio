@@ -12,7 +12,7 @@ public:
 	EtaSystem(EtaEngine& engine) : m_engine(engine) {}
 	virtual ~EtaSystem() = default;
 
-	virtual void update() {}
+	virtual void update(float delta) {}
 	virtual void awake() {}
 	virtual void sleep() {}
 

@@ -21,6 +21,8 @@
 
 #include <glm/glm.hpp>
 
+#include <chrono>
+
 using str = const std::string&;
 
 using Index = uint32_t;

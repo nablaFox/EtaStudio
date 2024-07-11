@@ -418,6 +418,13 @@ VkResult EtaDevice::startFrame(AllocatedImage& drawImage) {
 
 	etautil::makeColorWriteable(currentCmd(), drawImage);
 	VkRenderingAttachmentInfo colorAttachment = etainit::attachmentInfo(drawImage.imageView, nullptr, VK_IMAGE_LAYOUT_GENERAL);
+
+	// TODO: make this configurable
+	VkClearValue clearColor = {{0.0f, 0.0f, 0.0f, 1.0f}};
+	colorAttachment.clearValue = clearColor;
+	colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+	colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+
 	VkRenderingInfo renderInfo = etainit::renderingInfo(m_drawExtent, &colorAttachment, nullptr);
 
 	vkCmdBeginRendering(currentCmd(), &renderInfo);

@@ -24,6 +24,16 @@ public:
 		m_dirty = true;
 	}
 
+	void reserveVertices(size_t size) {
+		m_vertices.assign(size, Vertex());
+		m_dirty = true;
+	}
+
+	void reserveIndices(size_t size) {
+		m_indices.assign(size, 0);
+		m_dirty = true;
+	}
+
 public:
 	void load() override;
 	void destroy() override;

@@ -73,6 +73,8 @@ private:
 	EtaWindow m_window;
 	EtaDevice m_device;
 	EtaAssetManager m_assetManager{m_device};
+
+	float m_deltaTime = 0.0f;
 };
 
 }; // namespace eta

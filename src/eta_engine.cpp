@@ -25,16 +25,24 @@ void EtaEngine::init(const GameEngineSettings& settings) {
 void EtaEngine::run() {
 	bool quit = false;
 
-	// TEMP: events should be handled by the input system
+	auto lastTime = std::chrono::high_resolution_clock::now();
+	m_deltaTime = 0.0f;
+
 	while (!quit) {
-		glfwPollEvents();
+		auto currentTime = std::chrono::high_resolution_clock::now();
+		std::chrono::duration<float> deltaTime = currentTime - lastTime;
+		lastTime = currentTime;
+
+		m_deltaTime = deltaTime.count();
+
+		glfwPollEvents(); // TODO: should be handled by input system
 
 		if (glfwWindowShouldClose(m_window.getWindow()))
 			quit = true;
 
 		// TEMP: systems should have an update order
 		for (auto& system : m_systems)
-			system->update();
+			system->update(m_deltaTime);
 	}
 }
 
