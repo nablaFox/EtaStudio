@@ -1,6 +1,7 @@
 #include "../include/eta_engine.hpp"
 
 #include "../include/eta_rendering_system.hpp"
+#include "../include/eta_input_system.hpp"
 #include "../include/eta_initial_scene.hpp"
 #include "../include/eta_default_materials.hpp"
 
@@ -17,14 +18,14 @@ void EtaEngine::init(const GameEngineSettings& settings) {
 
 	registerSystem<EtaRenderingSystem>(m_window, m_device);
 
+	registerSystem<EtaInputSystem>(m_window);
+
 	switchScene("InitialScene");
 
 	fmt::print("Engine initialized\n");
 }
 
 void EtaEngine::run() {
-	bool quit = false;
-
 	auto lastTime = std::chrono::high_resolution_clock::now();
 	m_deltaTime = 0.0f;
 
@@ -34,11 +35,6 @@ void EtaEngine::run() {
 		lastTime = currentTime;
 
 		m_deltaTime = deltaTime.count();
-
-		glfwPollEvents(); // TODO: should be handled by input system
-
-		if (glfwWindowShouldClose(m_window.getWindow()))
-			quit = true;
 
 		// TEMP: systems should have an update order
 		for (auto& system : m_systems)

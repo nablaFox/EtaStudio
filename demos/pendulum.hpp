@@ -27,9 +27,43 @@ public:
 	using EtaSystem::EtaSystem;
 
 	void update(float deltaTime) override {
-		auto entities = currentScene().getEntities<MeshComponent, PendulumComponent>();
+		auto entities = currentScene().getEntities<MeshComponent, PendulumComponent, InputComponent>();
+		auto cameraComponent = currentScene().getActiveCamera();
+		auto cameraTransform = currentScene().getActiveCameraTransform();
 
-		entities.each([this, deltaTime](auto entity, MeshComponent& mesh, PendulumComponent& pendulum) {
+		entities.each([this, deltaTime, cameraComponent, cameraTransform](auto entity, MeshComponent& mesh,
+																		  PendulumComponent& pendulum, InputComponent& input) {
+			if (cameraComponent && input.keys[GLFW_KEY_UP]) {
+				cameraComponent->orthoSize += 0.1f;
+			}
+
+			if (cameraComponent && input.keys[GLFW_KEY_DOWN]) {
+				cameraComponent->orthoSize -= 0.1f;
+			}
+
+			if (input.keys[GLFW_KEY_A]) {
+				cameraTransform->position.x -= deltaTime;
+			}
+
+			if (input.keys[GLFW_KEY_D]) {
+				cameraTransform->position.x += deltaTime;
+			}
+
+			if (input.keys[GLFW_KEY_W]) {
+				cameraTransform->position.y += deltaTime;
+			}
+
+			if (input.keys[GLFW_KEY_S]) {
+				cameraTransform->position.y -= deltaTime;
+			}
+
+			if (input.keys[GLFW_KEY_RIGHT]) {
+				if (pendulum.angularVelocity < 0)
+					pendulum.angularVelocity -= 0.1f;
+				else
+					pendulum.angularVelocity += 0.1f;
+			}
+
 			const float gravity = 9.81f;
 			const float damping = 0.99f;
 
@@ -87,11 +121,14 @@ public:
 		addRenderComponent(entity, rendering);
 
 		addMeshComponent(entity, "PendulumMesh");
+
 		addComponent<PendulumComponent>(entity, 0.5f, // length
 										4.f,		  // angle
 										0.10f,		  // angularVelocity
 										0.4f,		  // angularAcceleration
 										glm::vec3(0.0f, 0.0f, 0.0f));
+
+		addComponent<InputComponent>(entity);
 
 		addDefaultOrtographicCamera();
 	};

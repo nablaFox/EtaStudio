@@ -36,6 +36,28 @@ public:
 		return entities;
 	}
 
+	CameraComponent* getActiveCamera() {
+		auto view = m_entities.view<CameraComponent>();
+		for (auto entity : view) {
+			auto& camera = view.get<CameraComponent>(entity);
+			if (camera.enabled)
+				return &camera;
+		}
+
+		return nullptr;
+	}
+
+	TransformComponent* getActiveCameraTransform() {
+		auto view = m_entities.view<CameraComponent, TransformComponent>();
+		for (auto entity : view) {
+			auto& camera = view.get<CameraComponent>(entity);
+			if (camera.enabled)
+				return &view.get<TransformComponent>(entity);
+		}
+
+		return nullptr;
+	}
+
 	void removeEntity(entt::entity entity) { m_entities.destroy(entity); }
 
 	void addRenderComponent(entt::entity);

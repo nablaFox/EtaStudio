@@ -46,6 +46,8 @@ public:
 
 	void loadModelIntoScene(str modelName, str sceneName);
 
+	bool quit = false;
+
 protected:
 	void init(const GameEngineSettings& settings = defaultSettings);
 

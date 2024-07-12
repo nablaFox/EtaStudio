@@ -45,4 +45,11 @@ struct RenderComponent {
 	VkFrontFace frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
 };
 
+struct InputComponent {
+	bool keys[GLFW_KEY_LAST] = {false};
+	bool mouseButtons[GLFW_MOUSE_BUTTON_LAST] = {false};
+	double mouseX = 0.0;
+	double mouseY = 0.0;
+};
+
 }; // namespace eta
