@@ -13,7 +13,7 @@ public:
 	void setup() override {
 		auto shader = m_manager.addAsset<EtaShader>("default_metallic");
 
-		shader->setVertShader("assets/shaders/basic.vert.spv");
+		shader->setVertShader("assets/shaders/default.vert.spv");
 		shader->setFragShader("assets/shaders/basic.frag.spv");
 
 		shader->load();

@@ -33,15 +33,21 @@ public:
 
 	void addBufferBinding(int binding);
 
-	void addTextureBinding(int binding, std::shared_ptr<EtaTextureAsset> texture);
-
-	void setBufferProperty(int binding, const std::string& name, float value);
-	void setBufferProperty(int binding, const std::string& name, const glm::vec2& value);
-	void setBufferProperty(int binding, const std::string& name, const glm::vec3& value);
-	void setBufferProperty(int binding, const std::string& name, const glm::vec4& value);
-	void setBufferProperty(int binding, const std::string& name, const glm::mat4& value);
-
 	void updateBuffers(EtaDevice& device);
+
+	void addFloat(int binding, const std::string& name, float value);
+	void addVec2(int binding, const std::string& name, const glm::vec2& value);
+	void addVec3(int binding, const std::string& name, const glm::vec3& value);
+	void addVec4(int binding, const std::string& name, const glm::vec4& value);
+	void addMat4(int binding, const std::string& name, const glm::mat4& value);
+
+	void setFloat(int binding, const std::string& name, float value);
+	void setVec2(int binding, const std::string& name, const glm::vec2& value);
+	void setVec3(int binding, const std::string& name, const glm::vec3& value);
+	void setVec4(int binding, const std::string& name, const glm::vec4& value);
+	void setMat4(int binding, const std::string& name, const glm::mat4& value);
+
+	void addTextureBinding(int binding, std::shared_ptr<EtaTextureAsset> texture);
 
 	size_t getHash();
 
@@ -56,6 +62,25 @@ protected:
 
 private:
 	void addBufferBinding(int binding, std::shared_ptr<EtaBufferBinding> bufferBinding);
+
+	template <typename T>
+	void setBufferProperty(int binding, const std::string& name, const T& value,
+						   std::unordered_map<std::string, T>& propertyMap) {
+		auto bufferBinding = m_bufferBindings[binding];
+		propertyMap[name] = value;
+		bufferBinding->size += sizeof(T);
+		bufferBinding->m_dirty = true;
+	}
+
+	template <typename T>
+	void updateBufferProperty(int binding, const std::string& name, const T& value,
+							  std::unordered_map<std::string, T>& propertyMap) {
+		auto bufferBinding = m_bufferBindings[binding];
+		if (propertyMap.find(name) == propertyMap.end())
+			return;
+		propertyMap[name] = value;
+		bufferBinding->m_dirty = true;
+	}
 };
 
 } // namespace eta

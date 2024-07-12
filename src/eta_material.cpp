@@ -11,15 +11,15 @@ void EtaMaterial::setShader(str shaderPath) {
 	}
 }
 
-void EtaMaterial::setProperty(str name, float value) { EtaBindings::setBufferProperty(0, name, value); }
+void EtaMaterial::setProperty(str name, float value) { EtaBindings::setFloat(0, name, value); }
 
-void EtaMaterial::setProperty(str name, glm::vec4 value) { EtaBindings::setBufferProperty(0, name, value); }
+void EtaMaterial::setProperty(str name, glm::vec4 value) { EtaBindings::setVec4(0, name, value); }
 
-void EtaMaterial::setProperty(str name, glm::vec3 value) { EtaBindings::setBufferProperty(0, name, value); }
+void EtaMaterial::setProperty(str name, glm::vec3 value) { EtaBindings::setVec3(0, name, value); }
 
-void EtaMaterial::setProperty(str name, glm::vec2 value) { EtaBindings::setBufferProperty(0, name, value); }
+void EtaMaterial::setProperty(str name, glm::vec2 value) { EtaBindings::setVec2(0, name, value); }
 
-void EtaMaterial::setProperty(str name, glm::mat4 value) { EtaBindings::setBufferProperty(0, name, value); }
+void EtaMaterial::setProperty(str name, glm::mat4 value) { EtaBindings::setMat4(0, name, value); }
 
 void EtaMaterial::load() {
 	if (m_descriptorAllocator == nullptr)

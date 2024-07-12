@@ -157,6 +157,30 @@ cmake_pch.hxx.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/cmake_pch.hxx.s
 .PHONY : cmake_pch.hxx.s
 
+demos/main.o: demos/main.cpp.o
+.PHONY : demos/main.o
+
+# target to build an object file
+demos/main.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/demos/main.cpp.o
+.PHONY : demos/main.cpp.o
+
+demos/main.i: demos/main.cpp.i
+.PHONY : demos/main.i
+
+# target to preprocess a source file
+demos/main.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/demos/main.cpp.i
+.PHONY : demos/main.cpp.i
+
+demos/main.s: demos/main.cpp.s
+.PHONY : demos/main.s
+
+# target to generate assembly for a file
+demos/main.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/demos/main.cpp.s
+.PHONY : demos/main.cpp.s
+
 lib/vkbootstrap/VkBootstrap.o: lib/vkbootstrap/VkBootstrap.cpp.o
 .PHONY : lib/vkbootstrap/VkBootstrap.o
 
@@ -445,30 +469,6 @@ src/eta_texture.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/eta_texture.cpp.s
 .PHONY : src/eta_texture.cpp.s
 
-src/main.o: src/main.cpp.o
-.PHONY : src/main.o
-
-# target to build an object file
-src/main.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/main.cpp.o
-.PHONY : src/main.cpp.o
-
-src/main.i: src/main.cpp.i
-.PHONY : src/main.i
-
-# target to preprocess a source file
-src/main.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/main.cpp.i
-.PHONY : src/main.cpp.i
-
-src/main.s: src/main.cpp.s
-.PHONY : src/main.s
-
-# target to generate assembly for a file
-src/main.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/main.cpp.s
-.PHONY : src/main.cpp.s
-
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -482,6 +482,9 @@ help:
 	@echo "... cmake_pch.hxx.gch"
 	@echo "... cmake_pch.hxx.i"
 	@echo "... cmake_pch.hxx.s"
+	@echo "... demos/main.o"
+	@echo "... demos/main.i"
+	@echo "... demos/main.s"
 	@echo "... lib/vkbootstrap/VkBootstrap.o"
 	@echo "... lib/vkbootstrap/VkBootstrap.i"
 	@echo "... lib/vkbootstrap/VkBootstrap.s"
@@ -518,9 +521,6 @@ help:
 	@echo "... src/eta_texture.o"
 	@echo "... src/eta_texture.i"
 	@echo "... src/eta_texture.s"
-	@echo "... src/main.o"
-	@echo "... src/main.i"
-	@echo "... src/main.s"
 .PHONY : help
 
 

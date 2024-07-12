@@ -10,6 +10,7 @@ set(SRC_PATH src)
 set(INCLUDE_PATH include)
 set(BIN_PATH bin)
 set(SHADERS_PATH assets/shaders)
+set(DEMOS_PATH demos)
 
 # Include directories
 include_directories(
@@ -25,10 +26,22 @@ include_directories(
 )
 
 # Source files
-file(GLOB_RECURSE SRC_FILES
-    "${SRC_PATH}/*.cpp"
-    "${SRC_PATH}/*.hpp"
-    "lib/vkbootstrap/VkBootstrap.cpp"
+set(SRC_FILES
+    ${SRC_PATH}/eta_bindings.cpp
+    ${SRC_PATH}/eta_descriptor.cpp
+    ${SRC_PATH}/eta_device.cpp
+    ${SRC_PATH}/eta_engine.cpp
+    ${SRC_PATH}/eta_graphics_pipeline.cpp
+    ${SRC_PATH}/eta_material.cpp
+    ${SRC_PATH}/eta_mesh.cpp
+    ${SRC_PATH}/eta_pipeline.cpp
+    ${SRC_PATH}/eta_scene.cpp
+    ${SRC_PATH}/eta_swapchain.cpp
+    ${SRC_PATH}/eta_texture.cpp
+    lib/vkbootstrap/VkBootstrap.cpp
+    ${DEMOS_PATH}/main.cpp
+    ${DEMOS_PATH}/cube.hpp
+    ${DEMOS_PATH}/pendulum.hpp
 )
 
 # Shader files

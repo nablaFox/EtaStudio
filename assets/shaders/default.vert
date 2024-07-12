@@ -3,7 +3,7 @@
 #extension GL_GOOGLE_include_directive : require
 #extension GL_EXT_buffer_reference : require
 
-// #include "common.glsl"
+#include "common.glsl"
 
 layout (location = 0) out vec3 outNormal;
 layout (location = 1) out vec3 outColor;
@@ -17,14 +17,10 @@ struct Vertex {
 	vec4 color;
 }; 
 
-// if we were in C: const VertexBuffer* vertices;
-// we are declaring a readonly buffer reference (pointer) to the vertex buffer
-// buffer_reference in the layout is what makes this buffer a pointer
 layout(buffer_reference, std430) readonly buffer VertexBuffer { 
 	Vertex vertices[];
 };
 
-// push constant block
 layout( push_constant ) uniform constants
 {	
 	mat4 render_matrix;
@@ -33,14 +29,12 @@ layout( push_constant ) uniform constants
 
 void main() 
 {	
-	// load vertex data from device adress 
-	// it's like PushConstants.vertexBuffer->vertices[gl_VertexIndex]
 	Vertex v = PushConstants.vertexBuffer.vertices[gl_VertexIndex];
+	vec4 position = vec4(v.position, 1.0f);
 
-	//output data
-	gl_Position = PushConstants.render_matrix * vec4(v.position, 1.0f);
+	gl_Position = sceneData.viewproj * PushConstants.render_matrix * position;
+	outNormal = v.normal;
 	outColor = v.color.xyz;
-	outNormal = vec3(0.5f, 0.5f, 0.f);
-	outUV.x = v.uv_x; // we are just passing the uv coordinates to the fragment shader
+	outUV.x = v.uv_x;
 	outUV.y = v.uv_y;
 }

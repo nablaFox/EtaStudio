@@ -33,13 +33,13 @@ public:
 	};
 
 	struct DrawPushConstants {
-		glm::mat4 _model;
+		glm::mat4 _transform;
 		VkDeviceAddress _vertexBufferAddress;
 	};
 
 	struct DrawCallOpts {
 		GPUMeshData meshData;
-		glm::mat4 model;
+		glm::mat4 transform;
 	};
 
 public:
@@ -64,7 +64,8 @@ public:
 	void waitIdle() { vkDeviceWaitIdle(m_device); }
 
 	template <typename... Bindings>
-	void drawGeometry(GPUMeshData& meshData, glm::mat4 matrix, GraphicsPipelineConfigs& pipelineConfigs, Bindings&&... bindings) {
+	void drawGeometry(GPUMeshData& meshData, glm::mat4 transform, GraphicsPipelineConfigs& pipelineConfigs,
+					  Bindings&&... bindings) {
 		auto cmd = currentCmd();
 
 		auto pipeline = std::static_pointer_cast<EtaGraphicsPipeline>(getGraphicsPipeline(pipelineConfigs, bindings...));
@@ -77,14 +78,14 @@ public:
 		((bindDescriptorSets(bindings, i++)), ...);
 
 		DrawPushConstants pushConstants = {
-			._model = matrix,
+			._transform = transform,
 			._vertexBufferAddress = meshData.vertexBufferAddress,
 		};
 
 		pipeline->template pushConstants<DrawPushConstants>(cmd, pushConstants);
 		pipeline->bind(cmd);
-		vkCmdBindIndexBuffer(cmd, meshData.indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT32);
 
+		vkCmdBindIndexBuffer(cmd, meshData.indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT32);
 		vkCmdDrawIndexed(cmd, meshData.indexCount, 1, 0, 0, 0);
 	}
 

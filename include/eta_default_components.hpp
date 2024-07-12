@@ -9,7 +9,7 @@ class EtaMaterial;
 
 struct TransformComponent {
 	glm::vec3 position;
-	glm::vec3 rotation;
+	glm::quat rotation;
 	glm::vec3 scale;
 };
 
@@ -19,7 +19,7 @@ struct CameraComponent {
 	float near;
 	float far;
 	bool enabled;
-	glm::vec4 rect;
+	float orthoSize;
 };
 
 struct PointLightComponent {
@@ -39,6 +39,10 @@ struct MeshComponent {
 
 struct RenderComponent {
 	std::shared_ptr<EtaMaterial> material;
+	VkPrimitiveTopology topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+	VkPolygonMode polygonMode = VK_POLYGON_MODE_FILL;
+	VkCullModeFlags cullMode = VK_CULL_MODE_NONE;
+	VkFrontFace frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
 };
 
 }; // namespace eta
