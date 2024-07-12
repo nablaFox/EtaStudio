@@ -80,6 +80,11 @@ inline void makePresentable(VkCommandBuffer cmd, VulkanImage& image) {
 	image.currentLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 }
 
+inline void makeReadable(VkCommandBuffer cmd, VulkanImage& image) {
+	transitionImage(cmd, image.image, image.currentLayout, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+	image.currentLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+}
+
 inline void makeTransferable(VkCommandBuffer cmd, VulkanImage& image) {
 	transitionImage(cmd, image.image, image.currentLayout, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
 	image.currentLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;

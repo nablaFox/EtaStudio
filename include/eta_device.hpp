@@ -119,11 +119,12 @@ public:
 	VkResult createBuffer(size_t allocSize, VkBufferUsageFlags usage, VmaMemoryUsage memoryUsage, AllocatedBuffer& buffer);
 	VkResult createUBO(size_t allocSize, AllocatedBuffer& uboBuffer);
 	VkResult fillBuffer(AllocatedBuffer& buffer, void* data, size_t size, size_t offset);
+	VkResult createStagingBuffer(size_t allocSize, AllocatedBuffer& stagingBuffer, void*& data);
+	VkResult destroyBuffer(AllocatedBuffer& buffer);
+
 	VkResult uploadMesh(std::span<Vertex> vertices, std::span<Index> indices, GPUMeshData& meshData);
 	VkResult updateMesh(std::span<Vertex> vertices, std::span<Index> indices, GPUMeshData& meshData);
 	VkResult destroyMesh(GPUMeshData& meshData);
-	VkResult createStagingBuffer(size_t allocSize, AllocatedBuffer& stagingBuffer, void*& data);
-	VkResult destroyBuffer(AllocatedBuffer& buffer);
 
 	VkResult createImage(VkExtent3D size, VkFormat format, VkImageUsageFlags usage, AllocatedImage& handle,
 						 bool mipmapped = false);

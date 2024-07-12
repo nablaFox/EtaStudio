@@ -47,6 +47,8 @@ struct RenderComponent {
 
 struct InputComponent {
 	bool keys[GLFW_KEY_LAST] = {false};
+	bool prevKeys[GLFW_KEY_LAST] = {false};
+	bool singleKeyPresses[GLFW_KEY_LAST] = {false};
 	bool mouseButtons[GLFW_MOUSE_BUTTON_LAST] = {false};
 	double mouseX = 0.0;
 	double mouseY = 0.0;

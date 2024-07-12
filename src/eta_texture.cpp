@@ -4,12 +4,11 @@
 using namespace eta;
 
 void EtaTextureAsset::load() {
-	if (textureData) {
-		ETA_CHECK_MSG(
-			m_device.createFilledImage(m_image, textureData, m_image.imageExtent, m_image.imageFormat, m_imageUsageFlags),
-			"Failed to upload texture " + getName());
-		return;
-	}
+	ETA_CHECK_MSG(
+		m_device.createFilledImage(m_image, textureData, m_image.imageExtent, m_image.imageFormat, VK_IMAGE_USAGE_SAMPLED_BIT),
+		"Failed to upload texture " + getName());
 
-	// load texture data from file, then create and fill the image
+	ETA_CHECK_MSG(m_device.createSampler(&m_sampler, &m_samplerCreateInfo), "Failed to create sampler for texture " + getName());
+
+	return;
 }

@@ -64,6 +64,10 @@ public:
 					pendulum.angularVelocity += 0.1f;
 			}
 
+			if (input.singleKeyPresses[GLFW_KEY_C]) {
+				m_engine.switchScene("CubeScene");
+			}
+
 			const float gravity = 9.81f;
 			const float damping = 0.99f;
 

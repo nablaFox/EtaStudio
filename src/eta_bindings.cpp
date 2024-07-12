@@ -64,8 +64,8 @@ void EtaBindings::addBufferBinding(int binding, std::shared_ptr<EtaBufferBinding
 }
 
 void EtaBindings::addTextureBinding(int binding, std::shared_ptr<EtaTextureAsset> texture) {
-	m_descriptorSetLayout.addBinding(binding, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
 	m_textureBindings[binding] = texture;
+	m_descriptorSetLayout.addBinding(binding, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
 }
 
 VkResult EtaBindings::init(EtaDevice& device, EtaDescriptorAllocator& descriptorAllocator) {
@@ -86,7 +86,7 @@ VkResult EtaBindings::init(EtaDevice& device, EtaDescriptorAllocator& descriptor
 
 	for (auto& [binding, texture] : m_textureBindings) {
 		m_descriptorSet.writeImage(binding, texture->getImage().imageView, texture->getSampler(),
-								   texture->getImage().currentLayout);
+								   texture->getImage().currentLayout, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
 	}
 
 	m_descriptorSet.update(device);

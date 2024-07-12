@@ -292,9 +292,9 @@ VkResult EtaDevice::createImage(VkExtent3D size, VkFormat format, VkImageUsageFl
 	handle.imageExtent = size;
 
 	VkImageCreateInfo imgInfo = etainit::imageCreateInfo(format, usage, size);
-	if (mipmapped) {
+
+	if (mipmapped)
 		imgInfo.mipLevels = static_cast<uint32_t>(std::floor(std::log2(std::max(size.width, size.height)))) + 1;
-	}
 
 	VmaAllocationCreateInfo allocInfo = {
 		.usage = VMA_MEMORY_USAGE_GPU_ONLY,
@@ -317,25 +317,22 @@ VkResult EtaDevice::createImage(VkExtent3D size, VkFormat format, VkImageUsageFl
 	return VK_SUCCESS;
 }
 
-VkResult EtaDevice::createSampler(VkSampler* sampler, VkSamplerCreateInfo* info) {
-	VK_RETURN(vkCreateSampler(m_device, info, nullptr, sampler));
-	m_deletionQueue.push_function([this, sampler] { vkDestroySampler(m_device, *sampler, nullptr); });
-	return VK_SUCCESS;
-}
-
 VkResult EtaDevice::fillImage(AllocatedImage& image, void* data) {
 	size_t imageSize = image.imageExtent.width * image.imageExtent.height * image.imageExtent.depth * 4;
 
+	void* mappedData;
 	AllocatedBuffer stagingBuffer;
-	VK_RETURN(createStagingBuffer(imageSize, stagingBuffer, data));
+	VK_RETURN(createStagingBuffer(imageSize, stagingBuffer, mappedData));
+	VK_RETURN(fillBuffer(stagingBuffer, data, imageSize, 0));
 
 	immediateSubmit([&](VkCommandBuffer cmd) {
-		etautil::transitionImage(cmd, image.image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+		etautil::makeCopyable(cmd, image);
 
-		VkBufferImageCopy copyRegion = {};
-		copyRegion.bufferOffset = 0;
-		copyRegion.bufferRowLength = 0;
-		copyRegion.bufferImageHeight = 0;
+		VkBufferImageCopy copyRegion = {
+			.bufferOffset = 0,
+			.bufferRowLength = 0,
+			.bufferImageHeight = 0,
+		};
 
 		copyRegion.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 		copyRegion.imageSubresource.mipLevel = 0;
@@ -345,20 +342,16 @@ VkResult EtaDevice::fillImage(AllocatedImage& image, void* data) {
 
 		vkCmdCopyBufferToImage(cmd, stagingBuffer.buffer, image.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copyRegion);
 
-		etautil::transitionImage(cmd, image.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-								 VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+		etautil::makeReadable(cmd, image);
 	});
 
-	VK_RETURN(destroyBuffer(stagingBuffer));
-
-	return VK_SUCCESS;
+	return destroyBuffer(stagingBuffer);
 }
 
 VkResult EtaDevice::createFilledImage(AllocatedImage& image, void* data, VkExtent3D size, VkFormat format,
 									  VkImageUsageFlags usage) {
 	VK_RETURN(createImage(size, format, usage | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT, image, false));
-	VK_RETURN(fillImage(image, data));
-	return VK_SUCCESS;
+	return fillImage(image, data);
 }
 
 VkResult EtaDevice::createDrawImage(VkExtent2D extent, AllocatedImage& image) {
@@ -394,6 +387,12 @@ VkResult EtaDevice::createDrawImage(VkExtent2D extent, AllocatedImage& image) {
 		vmaDestroyImage(m_allocator, image.image, image.allocation);
 	});
 
+	return VK_SUCCESS;
+}
+
+VkResult EtaDevice::createSampler(VkSampler* sampler, VkSamplerCreateInfo* info) {
+	VK_RETURN(vkCreateSampler(m_device, info, nullptr, sampler));
+	m_deletionQueue.push_function([this, sampler] { vkDestroySampler(m_device, *sampler, nullptr); });
 	return VK_SUCCESS;
 }
 

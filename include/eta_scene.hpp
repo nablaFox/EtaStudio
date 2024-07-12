@@ -36,28 +36,6 @@ public:
 		return entities;
 	}
 
-	CameraComponent* getActiveCamera() {
-		auto view = m_entities.view<CameraComponent>();
-		for (auto entity : view) {
-			auto& camera = view.get<CameraComponent>(entity);
-			if (camera.enabled)
-				return &camera;
-		}
-
-		return nullptr;
-	}
-
-	TransformComponent* getActiveCameraTransform() {
-		auto view = m_entities.view<CameraComponent, TransformComponent>();
-		for (auto entity : view) {
-			auto& camera = view.get<CameraComponent>(entity);
-			if (camera.enabled)
-				return &view.get<TransformComponent>(entity);
-		}
-
-		return nullptr;
-	}
-
 	void removeEntity(entt::entity entity) { m_entities.destroy(entity); }
 
 	void addRenderComponent(entt::entity);
@@ -67,12 +45,43 @@ public:
 	void addDefaultCamera();
 	void addDefaultOrtographicCamera();
 
+	CameraComponent* getActiveCamera() {
+		if (m_activeCamera != entt::null)
+			return &m_entities.get<CameraComponent>(m_activeCamera);
+
+		auto view = m_entities.view<CameraComponent>();
+		for (auto entity : view) {
+			auto& camera = view.get<CameraComponent>(entity);
+			if (camera.enabled) {
+				m_activeCamera = entity;
+				return &camera;
+			}
+		}
+
+		return nullptr;
+	}
+
+	TransformComponent* getActiveCameraTransform() {
+		if (m_activeCamera != entt::null)
+			return &m_entities.get<TransformComponent>(m_activeCamera);
+
+		auto view = m_entities.view<TransformComponent>();
+		for (auto entity : view) {
+			if (entity == m_activeCamera) {
+				return &view.get<TransformComponent>(entity);
+			}
+		}
+
+		return nullptr;
+	}
+
 	struct GlobalSceneData {
 		glm::vec4 ambientColor = glm::vec4(0.1f, 0.1f, 0.1f, 1.0f);
 	} globalSceneData;
 
 private:
 	entt::registry m_entities;
+	entt::entity m_activeCamera = entt::null;
 };
 
 }; // namespace eta

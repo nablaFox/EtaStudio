@@ -16,9 +16,9 @@ void EtaEngine::init(const GameEngineSettings& settings) {
 
 	registerAsset<EtaInitialScene>("InitialScene");
 
-	registerSystem<EtaRenderingSystem>(m_window, m_device);
-
 	registerSystem<EtaInputSystem>(m_window);
+
+	registerSystem<EtaRenderingSystem>(m_window, m_device);
 
 	switchScene("InitialScene");
 
@@ -67,6 +67,10 @@ void EtaEngine::switchScene(str name) {
 	}
 
 	m_currentScene = scene;
+
+	// reset keys
+	m_systems[0]->update(0.0f);
+
 	fmt::print("Switched to scene '{}'\n", name);
 }
 

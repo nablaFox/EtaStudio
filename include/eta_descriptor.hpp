@@ -18,7 +18,7 @@ struct EtaDescriptorLayout {
 };
 
 struct EtaDescriptorSet {
-	void writeImage(uint32_t binding, VkImageView imageView, VkSampler sampler, VkImageLayout layout);
+	void writeImage(uint32_t binding, VkImageView imageView, VkSampler sampler, VkImageLayout layout, VkDescriptorType type);
 	void writeBuffer(uint32_t binding, VkBuffer buffer, size_t size, size_t offset, VkDescriptorType type);
 
 	VkDescriptorSet& get() { return _descriptorSet; }

@@ -29,7 +29,8 @@ void EtaDescriptorLayout::destroy(EtaDevice& device) {
 	vkDestroyDescriptorSetLayout(device.getDevice(), _descriptorSetLayout, nullptr);
 }
 
-void EtaDescriptorSet::writeImage(uint32_t binding, VkImageView imageView, VkSampler sampler, VkImageLayout layout) {
+void EtaDescriptorSet::writeImage(uint32_t binding, VkImageView imageView, VkSampler sampler, VkImageLayout layout,
+								  VkDescriptorType type) {
 	VkDescriptorImageInfo& info = _imageInfos.emplace_back(VkDescriptorImageInfo{
 		.sampler = sampler,
 		.imageView = imageView,
@@ -42,7 +43,7 @@ void EtaDescriptorSet::writeImage(uint32_t binding, VkImageView imageView, VkSam
 		.dstSet = VK_NULL_HANDLE,
 		.dstBinding = binding,
 		.descriptorCount = 1,
-		.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
+		.descriptorType = type,
 		.pImageInfo = &info,
 	});
 }

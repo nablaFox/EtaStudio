@@ -7,14 +7,14 @@ using namespace eta;
 class DemoApplication : public EtaApp {
 	void setup() override {
 		registerAsset<PendulumMesh>("PendulumMesh");
-		registerSystem<PendulumSystem>();
 		registerAsset<PendulumScene>("PendulumScene");
+		registerSystem<PendulumSystem>();
 
 		registerAsset<CubeMesh>("CubeMesh");
-		registerSystem<CubeSystem>();
 		registerAsset<CubeScene>("CubeScene");
+		registerSystem<CubeSystem>();
 
-		switchScene("PendulumScene");
+		switchScene("CubeScene");
 	};
 };
 
