@@ -23,18 +23,25 @@ class EtaBindings {
 		size_t offset = 0;
 		size_t size = 0;
 		bool m_dirty = false;
+		bool shared = false;
+	};
+
+	struct EtaTextureBinding {
+		std::shared_ptr<EtaTextureAsset> texture;
+		bool m_dirty = false;
 	};
 
 public:
 	VkResult init(EtaDevice& device, EtaDescriptorAllocator& descriptorAllocator);
 	void destroy(EtaDevice& device);
+	void updateBuffers(EtaDevice& device);
+	void updateTextures(EtaDevice& device);
 
 	void addBufferBinding(int binding, AllocatedBuffer& buffer, size_t offset);
-
 	void addBufferBinding(int binding);
 
-	void updateBuffers(EtaDevice& device);
-
+	void addInt(int binding, const std::string& name, int value) {}
+	void addBool(int binding, const std::string& name, bool value) {}
 	void addFloat(int binding, const std::string& name, float value);
 	void addVec2(int binding, const std::string& name, const glm::vec2& value);
 	void addVec3(int binding, const std::string& name, const glm::vec3& value);
@@ -47,39 +54,49 @@ public:
 	void setVec4(int binding, const std::string& name, const glm::vec4& value);
 	void setMat4(int binding, const std::string& name, const glm::mat4& value);
 
-	void addTextureBinding(int binding, std::shared_ptr<EtaTextureAsset> texture);
+	void setTextureBinding(int binding, std::shared_ptr<EtaTextureAsset> texture);
 
 	size_t getHash();
 
 	VkDescriptorSet getDescriptorSet() { return m_descriptorSet.get(); }
 	VkDescriptorSetLayout getDescriptorSetLayout() { return m_descriptorSetLayout.get(); }
 
+	size_t getBufferSize(int binding) {
+		auto& bufferBinding = m_bufferBindings[binding];
+		return bufferBinding.size;
+	}
+
 protected:
-	std::unordered_map<int, std::shared_ptr<EtaTextureAsset>> m_textureBindings;
-	std::unordered_map<int, std::shared_ptr<EtaBufferBinding>> m_bufferBindings;
+	std::unordered_map<int, EtaTextureBinding> m_textureBindings;
+	std::unordered_map<int, EtaBufferBinding> m_bufferBindings;
 	EtaDescriptorSet m_descriptorSet;
 	EtaDescriptorLayout m_descriptorSetLayout;
 
 private:
-	void addBufferBinding(int binding, std::shared_ptr<EtaBufferBinding> bufferBinding);
+	void addBufferBinding(int binding, EtaBufferBinding& bufferBinding);
+
+	void writeTextureBindings();
+	void writeBufferBindings();
+
+	int m_oneTextureDirty = false;
 
 	template <typename T>
 	void setBufferProperty(int binding, const std::string& name, const T& value,
 						   std::unordered_map<std::string, T>& propertyMap) {
-		auto bufferBinding = m_bufferBindings[binding];
+		auto& bufferBinding = m_bufferBindings[binding];
 		propertyMap[name] = value;
-		bufferBinding->size += sizeof(T);
-		bufferBinding->m_dirty = true;
+		bufferBinding.size += sizeof(T);
+		bufferBinding.m_dirty = true;
 	}
 
 	template <typename T>
 	void updateBufferProperty(int binding, const std::string& name, const T& value,
 							  std::unordered_map<std::string, T>& propertyMap) {
-		auto bufferBinding = m_bufferBindings[binding];
+		auto& bufferBinding = m_bufferBindings[binding];
 		if (propertyMap.find(name) == propertyMap.end())
 			return;
 		propertyMap[name] = value;
-		bufferBinding->m_dirty = true;
+		bufferBinding.m_dirty = true;
 	}
 };
 

@@ -12,6 +12,8 @@ class EtaScene : public EtaAsset {
 public:
 	using EtaAsset::EtaAsset;
 
+	void load() override { fmt::println("Info: Scene {} loaded", getName()); }
+
 	entt::entity addEntity() {
 		auto entity = m_entities.create();
 		m_entities.emplace<TransformComponent>(entity, glm::vec3(0), glm::quat(1, 0, 0, 0), glm::vec3(1.0f));
@@ -28,6 +30,11 @@ public:
 	template <typename T, typename... Args>
 	void addComponent(entt::entity entity, Args&&... component) {
 		m_entities.emplace<T>(entity, std::forward<Args>(component)...);
+	}
+
+	template <typename T>
+	T& getComponent(entt::entity entity) {
+		return m_entities.get<T>(entity);
 	}
 
 	template <typename... Components>

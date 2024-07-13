@@ -12,7 +12,9 @@ void EtaEngine::init(const GameEngineSettings& settings) {
 
 	ETA_CHECK(m_device.init(m_window));
 
-	registerAsset<EtaMetallicMaterial>("default_metallic");
+	registerAsset<EtaBaseTextureColor>("default_base_color");
+
+	registerAsset<EtaMetallicRoughnessMaterial>("metallic_roughness");
 
 	registerAsset<EtaInitialScene>("InitialScene");
 
@@ -22,7 +24,7 @@ void EtaEngine::init(const GameEngineSettings& settings) {
 
 	switchScene("InitialScene");
 
-	fmt::print("Engine initialized\n");
+	fmt::print("Info: Engine initialized\n");
 }
 
 void EtaEngine::run() {
@@ -55,14 +57,14 @@ void EtaEngine::destroy() {
 
 void EtaEngine::switchScene(str name) {
 	if (m_currentScene && m_currentScene->getName() == name) {
-		fmt::print("Already in scene '{}'\n", name);
+		fmt::print("Warning: Already in scene '{}'\n", name);
 		return;
 	}
 
 	auto scene = m_assetManager.getAsset<EtaScene>(name);
 
 	if (!scene) {
-		fmt::print("Scene '{}' not found\n", name);
+		fmt::print("Warning: Scene '{}' not found\n", name);
 		return;
 	}
 
@@ -71,10 +73,5 @@ void EtaEngine::switchScene(str name) {
 	// reset keys
 	m_systems[0]->update(0.0f);
 
-	fmt::print("Switched to scene '{}'\n", name);
-}
-
-void EtaEngine::loadModelIntoScene(str modelName, str sceneName) {
-
-	fmt::print("Model '{}' loaded into scene '{}'\n", modelName, sceneName);
+	fmt::print("Info: Switched to scene '{}'\n", name);
 }

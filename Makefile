@@ -373,6 +373,30 @@ src/eta_mesh.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/eta_mesh.cpp.s
 .PHONY : src/eta_mesh.cpp.s
 
+src/eta_model.o: src/eta_model.cpp.o
+.PHONY : src/eta_model.o
+
+# target to build an object file
+src/eta_model.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/eta_model.cpp.o
+.PHONY : src/eta_model.cpp.o
+
+src/eta_model.i: src/eta_model.cpp.i
+.PHONY : src/eta_model.i
+
+# target to preprocess a source file
+src/eta_model.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/eta_model.cpp.i
+.PHONY : src/eta_model.cpp.i
+
+src/eta_model.s: src/eta_model.cpp.s
+.PHONY : src/eta_model.s
+
+# target to generate assembly for a file
+src/eta_model.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/EtaStudio.dir/build.make CMakeFiles/EtaStudio.dir/src/eta_model.cpp.s
+.PHONY : src/eta_model.cpp.s
+
 src/eta_pipeline.o: src/eta_pipeline.cpp.o
 .PHONY : src/eta_pipeline.o
 
@@ -509,6 +533,9 @@ help:
 	@echo "... src/eta_mesh.o"
 	@echo "... src/eta_mesh.i"
 	@echo "... src/eta_mesh.s"
+	@echo "... src/eta_model.o"
+	@echo "... src/eta_model.i"
+	@echo "... src/eta_model.s"
 	@echo "... src/eta_pipeline.o"
 	@echo "... src/eta_pipeline.i"
 	@echo "... src/eta_pipeline.s"

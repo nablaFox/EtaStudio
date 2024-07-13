@@ -19,20 +19,9 @@ public:
 	std::shared_ptr<T> addAsset(const std::string& name) {
 		static_assert(std::is_base_of<EtaAsset, T>::value, "T must derive from EtaBaseAsset");
 
+		auto& assetsMap = getAssetsMap<T>();
 		auto asset = std::make_shared<T>(m_device, *this, name);
-
-		if constexpr (std::is_base_of<EtaMeshAsset, T>::value)
-			m_meshAssets[name] = std::static_pointer_cast<EtaMeshAsset>(asset);
-		else if constexpr (std::is_base_of<EtaTextureAsset, T>::value)
-			m_textureAssets[name] = std::static_pointer_cast<EtaTextureAsset>(asset);
-		else if constexpr (std::is_base_of<EtaModelAsset, T>::value)
-			m_modelAssets[name] = std::static_pointer_cast<EtaModelAsset>(asset);
-		else if constexpr (std::is_base_of<EtaScene, T>::value)
-			m_sceneAssets[name] = std::static_pointer_cast<EtaScene>(asset);
-		else if constexpr (std::is_base_of<EtaShader, T>::value)
-			m_shaderAssets[name] = std::static_pointer_cast<EtaShader>(asset);
-		else if constexpr (std::is_base_of<EtaMaterial, T>::value)
-			m_materialAssets[name] = std::static_pointer_cast<EtaMaterial>(asset);
+		assetsMap[name] = asset;
 
 		return asset;
 	}
@@ -41,83 +30,76 @@ public:
 	std::shared_ptr<T> getAsset(const std::string& name) {
 		static_assert(std::is_base_of<EtaAsset, T>::value, "T must derive from EtaBaseAsset");
 
-		std::shared_ptr<T> assetToReturn;
+		auto asset = getAssetsMap<T>()[name];
+		if (!asset)
+			fmt::print("Warning: {} {} not found\n", getAssetTypeName<T>(), name);
 
-		if constexpr (std::is_base_of<EtaMeshAsset, T>::value)
-			assetToReturn = m_meshAssets[name];
-		else if constexpr (std::is_base_of<EtaTextureAsset, T>::value)
-			assetToReturn = m_textureAssets[name];
-		else if constexpr (std::is_base_of<EtaModelAsset, T>::value)
-			assetToReturn = m_modelAssets[name];
-		else if constexpr (std::is_base_of<EtaScene, T>::value)
-			assetToReturn = m_sceneAssets[name];
-		else if constexpr (std::is_base_of<EtaShader, T>::value)
-			assetToReturn = m_shaderAssets[name];
-		else if constexpr (std::is_base_of<EtaMaterial, T>::value)
-			assetToReturn = m_materialAssets[name];
-
-		if (!assetToReturn)
-			fmt::print("Asset {} not found\n", name);
-
-		return assetToReturn;
+		return std::static_pointer_cast<T>(asset);
 	}
 
 	template <typename T>
 	void removeAsset(const std::string& name) {
 		static_assert(std::is_base_of<EtaAsset, T>::value, "T must derive from EtaBaseAsset");
-
-		if constexpr (std::is_base_of<EtaMeshAsset, T>::value)
-			m_meshAssets.erase(name);
-		else if constexpr (std::is_base_of<EtaTextureAsset, T>::value)
-			m_textureAssets.erase(name);
-		else if constexpr (std::is_base_of<EtaModelAsset, T>::value)
-			m_modelAssets.erase(name);
-		else if constexpr (std::is_base_of<EtaScene, T>::value)
-			m_sceneAssets.erase(name);
-		else if constexpr (std::is_base_of<EtaShader, T>::value)
-			m_shaderAssets.erase(name);
-		else if constexpr (std::is_base_of<EtaMaterial, T>::value)
-			m_materialAssets.erase(name);
+		getAssetsMap<T>().erase(name);
 	}
 
-	// TODO: oh my. this is a mess. need to refactor this
 	void destroy() {
-		for (auto& [name, asset] : m_meshAssets) {
-			fmt::print("Destroying mesh asset {}\n", name);
+		destroyAssets(m_meshAssets, "mesh");
+		destroyAssets(m_textureAssets, "texture");
+		destroyAssets(m_modelAssets, "model");
+		destroyAssets(m_sceneAssets, "scene");
+		destroyAssets(m_shaderAssets, "shader");
+		destroyAssets(m_materialAssets, "material");
+
+		clearAllAssets();
+	}
+
+	template <typename T>
+	std::string getAssetTypeName() {
+		if constexpr (std::is_base_of<EtaMeshAsset, T>::value)
+			return "Mesh";
+		else if constexpr (std::is_base_of<EtaTextureAsset, T>::value)
+			return "Texture";
+		else if constexpr (std::is_base_of<EtaModelAsset, T>::value)
+			return "Model";
+		else if constexpr (std::is_base_of<EtaScene, T>::value)
+			return "Scene";
+		else if constexpr (std::is_base_of<EtaShader, T>::value)
+			return "Shader";
+		else if constexpr (std::is_base_of<EtaMaterial, T>::value)
+			return "Material";
+		else
+			return "Unknown Asset Type";
+	}
+
+private:
+	template <typename T>
+	auto& getAssetsMap() {
+		if constexpr (std::is_base_of<EtaMeshAsset, T>::value)
+			return m_meshAssets;
+		else if constexpr (std::is_base_of<EtaTextureAsset, T>::value)
+			return m_textureAssets;
+		else if constexpr (std::is_base_of<EtaModelAsset, T>::value)
+			return m_modelAssets;
+		else if constexpr (std::is_base_of<EtaScene, T>::value)
+			return m_sceneAssets;
+		else if constexpr (std::is_base_of<EtaShader, T>::value)
+			return m_shaderAssets;
+		else if constexpr (std::is_base_of<EtaMaterial, T>::value)
+			return m_materialAssets;
+	}
+
+	template <typename MapType>
+	void destroyAssets(MapType& assets, const std::string& assetType) {
+		for (auto& [name, asset] : assets) {
+			fmt::print("Info: Destroying {} {}\n", assetType, name);
 			if (asset)
 				asset->destroy();
 		}
+		assets.clear();
+	}
 
-		for (auto& [name, asset] : m_textureAssets) {
-			fmt::print("Destroying texture asset {}\n", name);
-			if (asset)
-				asset->destroy();
-		}
-
-		for (auto& [name, asset] : m_modelAssets) {
-			fmt::print("Destroying model asset {}\n", name);
-			if (asset)
-				asset->destroy();
-		}
-
-		for (auto& [name, asset] : m_sceneAssets) {
-			fmt::print("Destroying scene asset {}\n", name);
-			if (asset)
-				asset->destroy();
-		}
-
-		for (auto& [name, asset] : m_shaderAssets) {
-			fmt::print("Destroying shader asset {}\n", name);
-			if (asset)
-				asset->destroy();
-		}
-
-		for (auto& [name, asset] : m_materialAssets) {
-			fmt::print("Destroying material asset {}\n", name);
-			if (asset)
-				asset->destroy();
-		}
-
+	void clearAllAssets() {
 		m_meshAssets.clear();
 		m_textureAssets.clear();
 		m_modelAssets.clear();
@@ -126,9 +108,6 @@ public:
 		m_materialAssets.clear();
 	}
 
-	EtaDevice& getDevice() { return m_device; }
-
-private:
 	std::unordered_map<std::string, std::shared_ptr<EtaMeshAsset>> m_meshAssets;
 	std::unordered_map<std::string, std::shared_ptr<EtaTextureAsset>> m_textureAssets;
 	std::unordered_map<std::string, std::shared_ptr<EtaModelAsset>> m_modelAssets;

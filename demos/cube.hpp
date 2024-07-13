@@ -1,36 +1,10 @@
 #pragma once
 
 #include "../include/eta_app.hpp"
+#include "rotation_system.hpp"
 #include <glm/gtc/quaternion.hpp>
 
 using namespace eta;
-
-struct CubeComponent {
-	float rotationSpeed;
-	glm::vec3 rotationAxis;
-};
-
-class CubeScene : public EtaScene {
-public:
-	using EtaScene::EtaScene;
-
-	void setup() override {
-		fmt::println("CubeScene setup");
-
-		auto cube = addEntity();
-
-		addRenderComponent(cube);
-		addMeshComponent(cube, "CubeMesh");
-
-		addComponent<CubeComponent>(cube,						  // entity
-									0.5f,						  // rotationSpeed
-									glm::vec3(1.0f, 0.0f, 0.0f)); // rotationAxis
-
-		addComponent<InputComponent>(cube);
-
-		addDefaultCamera();
-	};
-};
 
 class CubeMesh : public EtaMeshAsset {
 	using EtaMeshAsset::EtaMeshAsset;
@@ -84,66 +58,76 @@ public:
 	}
 };
 
-class CubeSystem : public EtaSystem {
+class PyramidMesh : public EtaMeshAsset {
 public:
-	using EtaSystem::EtaSystem;
+	using EtaMeshAsset::EtaMeshAsset;
+	void setup() override {
+		std::vector<Vertex> vertices(5);
 
-	void update(float deltaTime) override {
-		auto entities = currentScene().getEntities<TransformComponent, CubeComponent, InputComponent>();
-		auto cameraTransform = currentScene().getActiveCameraTransform();
+		// Define the vertices for the pyramid
+		vertices[0].position = {0.0f, 0.5f, 0.0f};	  // Top vertex
+		vertices[1].position = {-0.5f, -0.5f, 0.5f};  // Base front-left
+		vertices[2].position = {0.5f, -0.5f, 0.5f};	  // Base front-right
+		vertices[3].position = {0.5f, -0.5f, -0.5f};  // Base back-right
+		vertices[4].position = {-0.5f, -0.5f, -0.5f}; // Base back-left
 
-		entities.each([this, deltaTime, cameraTransform](auto entity, TransformComponent& transform, CubeComponent& cube,
-														 InputComponent& input) {
-			if (input.singleKeyPresses[GLFW_KEY_X]) {
-				m_engine.switchScene("PendulumScene");
-			}
+		// Define UV coordinates (example values)
+		for (int i = 0; i < 5; ++i) {
+			vertices[i].uv_x = vertices[i].position.x + 0.5f;
+			vertices[i].uv_y = vertices[i].position.y + 0.5f;
+		}
 
-			const float rotationSpeed = 30.0f; // degrees per second
-			float yaw = 0.0f;
-			float pitch = 0.0f;
+		for (auto& vertex : vertices) {
+			vertex.color = {1.0f, 1.0f, 1.0f, 1.0f};
+		}
 
-			if (input.keys[GLFW_KEY_RIGHT]) {
-				yaw -= rotationSpeed * deltaTime;
-			}
+		std::vector<uint32_t> indices = {
+			1, 2, 3, 3, 4, 1,
+			// Faces (triangles)
+			0, 1, 2, // Front face
+			0, 2, 3, // Right face
+			0, 3, 4, // Back face
+			0, 4, 1	 // Left face
+		};
 
-			if (input.keys[GLFW_KEY_LEFT]) {
-				yaw += rotationSpeed * deltaTime;
-			}
+		std::vector<MeshSurface> surfaces(5);
+		surfaces[0] = {0, 6};  // Base
+		surfaces[1] = {6, 3};  // Front face
+		surfaces[2] = {9, 3};  // Right face
+		surfaces[3] = {12, 3}; // Back face
+		surfaces[4] = {15, 3}; // Left face
 
-			if (input.keys[GLFW_KEY_UP]) {
-				pitch -= rotationSpeed * deltaTime;
-			}
-
-			if (input.keys[GLFW_KEY_DOWN]) {
-				pitch += rotationSpeed * deltaTime;
-			}
-
-			if (input.keys[GLFW_KEY_A]) {
-				cameraTransform->position.x -= cameraSpeed * deltaTime * 10;
-			}
-
-			if (input.keys[GLFW_KEY_D]) {
-				cameraTransform->position.x += cameraSpeed * deltaTime * 10;
-			}
-
-			if (input.keys[GLFW_KEY_W]) {
-				cameraTransform->position.z -= cameraSpeed * deltaTime * 10;
-			}
-
-			if (input.keys[GLFW_KEY_S]) {
-				cameraTransform->position.z += cameraSpeed * deltaTime * 10;
-			}
-
-			glm::quat yawRotation = glm::angleAxis(glm::radians(yaw), glm::vec3(0, 1, 0));
-			cameraTransform->rotation = yawRotation * cameraTransform->rotation;
-
-			glm::quat pitchRotation = glm::angleAxis(glm::radians(pitch), glm::vec3(1, 0, 0));
-			cameraTransform->rotation = pitchRotation * cameraTransform->rotation;
-
-			transform.rotation = glm::rotate(transform.rotation, cube.rotationSpeed * deltaTime, cube.rotationAxis);
-		});
+		setVertices(vertices);
+		setIndices(indices);
+		setSurfaces(surfaces);
 	}
+};
 
-private:
-	float cameraSpeed = 0.1f;
+class CubeScene : public EtaScene {
+public:
+	using EtaScene::EtaScene;
+
+	void setup() override {
+		auto cube = addEntity();
+
+		addRenderComponent(cube);
+		addMeshComponent(cube, "CubeMesh");
+
+		addComponent<RotationComponent>(cube,						  // entity
+										0.5f,						  // rotationSpeed
+										glm::vec3(1.0f, 0.0f, 0.0f)); // rotationAxis
+
+		addComponent<InputComponent>(cube);
+
+		auto pyramid = addEntity();
+
+		addRenderComponent(pyramid);
+		addMeshComponent(pyramid, "PyramidMesh");
+
+		addComponent<RotationComponent>(pyramid, 0.5f, glm::vec3(0.0f, 1.0f, 0.0f));
+
+		getComponent<TransformComponent>(pyramid).position = glm::vec3(1.5f, 0.0f, 0.0f);
+
+		addDefaultCamera();
+	};
 };

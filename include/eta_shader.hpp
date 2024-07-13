@@ -16,12 +16,12 @@ public:
 		if (!loadShaderModuleFromFile(m_vertShaderPath, m_vertShaderModule))
 			fmt::println("Failed to load vertex shader: {}", m_vertShaderPath);
 		else
-			fmt::println("Loaded vertex shader: {}", m_vertShaderPath);
+			fmt::println("Info: Loaded vertex shader: {}", m_vertShaderPath);
 
 		if (!loadShaderModuleFromFile(m_fragShaderPath, m_fragShaderModule))
 			return fmt::println("Failed to load fragment shader: {}", m_fragShaderPath);
 		else
-			fmt::println("Loaded fragment shader: {}", m_fragShaderPath);
+			fmt::println("Info: Loaded fragment shader: {}", m_fragShaderPath);
 	}
 
 	bool loadShaderModuleFromFile(std::string filePath, VkShaderModule& shaderModule) {

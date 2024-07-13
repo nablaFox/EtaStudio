@@ -64,8 +64,8 @@ public:
 	void waitIdle() { vkDeviceWaitIdle(m_device); }
 
 	template <typename... Bindings>
-	void drawGeometry(GPUMeshData& meshData, glm::mat4 transform, GraphicsPipelineConfigs& pipelineConfigs,
-					  Bindings&&... bindings) {
+	void bindResources(GPUMeshData& meshData, glm::mat4 transform, GraphicsPipelineConfigs& pipelineConfigs,
+					   Bindings&&... bindings) {
 		auto cmd = currentCmd();
 
 		auto pipeline = std::static_pointer_cast<EtaGraphicsPipeline>(getGraphicsPipeline(pipelineConfigs, bindings...));
@@ -86,7 +86,11 @@ public:
 		pipeline->bind(cmd);
 
 		vkCmdBindIndexBuffer(cmd, meshData.indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT32);
-		vkCmdDrawIndexed(cmd, meshData.indexCount, 1, 0, 0, 0);
+	}
+
+	void drawIndexed(size_t indexCount, size_t instanceCount, size_t firstIndex, size_t vertexOffset, size_t firstInstance) {
+		auto cmd = currentCmd();
+		vkCmdDrawIndexed(cmd, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
 	}
 
 	template <typename... Bindings>
@@ -95,7 +99,7 @@ public:
 		if (m_pipelines.find(bitmask) != m_pipelines.end())
 			return m_pipelines[bitmask];
 
-		fmt::print("Pipeline not found, creating new one. Hash {} \n", bitmask);
+		fmt::print("Debug: Graphics Pipeline not found, creating new one. Hash {} \n", bitmask);
 		return registerGraphicsPipeline(configs, bindings...);
 	}
 
@@ -110,7 +114,7 @@ public:
 		 ...);
 
 		newPipeline->build(m_device, configs);
-		fmt::print("Pipeline built\n");
+		fmt::print("Debug: Graphics Pipeline built\n");
 
 		return m_pipelines[EtaGraphicsPipeline::calculateHash(configs, bindings...)] = newPipeline;
 	}
@@ -133,6 +137,8 @@ public:
 	VkResult createFilledImage(AllocatedImage& image, void* data, VkExtent3D size, VkFormat format, VkImageUsageFlags usage);
 	VkResult createDrawImage(VkExtent2D size, AllocatedImage& handle);
 	VkResult destroySampler(VkSampler* sampler);
+	VkResult destroyImage(AllocatedImage& handle);
+	VkResult destroySampler(VkSampler& sampler);
 
 	VkResult createCommandPool(VkCommandPool* pool, VkCommandPoolCreateFlags flags = 0);
 	VkResult allocateCommandBuffer(VkCommandBuffer* buffer, VkCommandPool pool);

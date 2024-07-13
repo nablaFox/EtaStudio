@@ -17,15 +17,16 @@ void EtaMaterial::setTexture(int binding, str textureName) {
 	if (texture == nullptr)
 		fmt::print("Texture {} not found\n", textureName);
 
-	addTextureBinding(binding, texture);
+	EtaBindings::setTextureBinding(binding, texture);
 }
 
 void EtaMaterial::load() {
 	if (m_descriptorAllocator == nullptr)
 		m_descriptorAllocator = m_device.getGlobalDescriptorAllocator();
 
-	// print texture size
 	EtaBindings::init(m_device, *m_descriptorAllocator);
+
+	fmt::println("Info: Loaded material {}", getName());
 }
 
 void EtaMaterial::destroy() { EtaBindings::destroy(m_device); }

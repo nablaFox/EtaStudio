@@ -8,11 +8,7 @@ class EtaInitialScene : public EtaScene {
 public:
 	using EtaScene::EtaScene;
 
-	void setup() override {
-		fmt::println("EtaInitialScene setup");
-
-		addDefaultCamera();
-	}
+	void setup() override { addDefaultCamera(); }
 };
 
 }; // namespace eta

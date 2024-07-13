@@ -307,14 +307,7 @@ VkResult EtaDevice::createImage(VkExtent3D size, VkFormat format, VkImageUsageFl
 	VkImageViewCreateInfo viewInfo = etainit::imageViewCreateInfo(format, handle.image, aspectFlag);
 	viewInfo.subresourceRange.levelCount = imgInfo.mipLevels;
 
-	VK_RETURN(vkCreateImageView(m_device, &viewInfo, nullptr, &handle.imageView));
-
-	m_deletionQueue.push_function([this, handle] {
-		vkDestroyImageView(m_device, handle.imageView, nullptr);
-		vmaDestroyImage(m_allocator, handle.image, handle.allocation);
-	});
-
-	return VK_SUCCESS;
+	return vkCreateImageView(m_device, &viewInfo, nullptr, &handle.imageView);
 }
 
 VkResult EtaDevice::fillImage(AllocatedImage& image, void* data) {
@@ -323,7 +316,8 @@ VkResult EtaDevice::fillImage(AllocatedImage& image, void* data) {
 	void* mappedData;
 	AllocatedBuffer stagingBuffer;
 	VK_RETURN(createStagingBuffer(imageSize, stagingBuffer, mappedData));
-	VK_RETURN(fillBuffer(stagingBuffer, data, imageSize, 0));
+
+	memcpy(mappedData, data, imageSize);
 
 	immediateSubmit([&](VkCommandBuffer cmd) {
 		etautil::makeCopyable(cmd, image);
@@ -391,8 +385,17 @@ VkResult EtaDevice::createDrawImage(VkExtent2D extent, AllocatedImage& image) {
 }
 
 VkResult EtaDevice::createSampler(VkSampler* sampler, VkSamplerCreateInfo* info) {
-	VK_RETURN(vkCreateSampler(m_device, info, nullptr, sampler));
-	m_deletionQueue.push_function([this, sampler] { vkDestroySampler(m_device, *sampler, nullptr); });
+	return vkCreateSampler(m_device, info, nullptr, sampler);
+}
+
+VkResult EtaDevice::destroyImage(AllocatedImage& handle) {
+	vkDestroyImageView(m_device, handle.imageView, nullptr);
+	vmaDestroyImage(m_allocator, handle.image, handle.allocation);
+	return VK_SUCCESS;
+}
+
+VkResult EtaDevice::destroySampler(VkSampler& sampler) {
+	vkDestroySampler(m_device, sampler, nullptr);
 	return VK_SUCCESS;
 }
 

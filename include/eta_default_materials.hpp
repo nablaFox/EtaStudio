@@ -6,41 +6,86 @@
 
 namespace eta {
 
-class EtaMetallicMaterial : public EtaMaterial {
+class EtaBaseTextureColor : public EtaTextureAsset {
+	using EtaTextureAsset::EtaTextureAsset;
+
+public:
+	void setup() override {
+		textureData = reinterpret_cast<uint8_t*>(&m_white);
+
+		setMagFilter(VK_FILTER_NEAREST);
+		setMinFilter(VK_FILTER_NEAREST);
+		setFormat(VK_FORMAT_R8G8B8A8_UNORM);
+		setExtent(1, 1, 1);
+	}
+
+private:
+	uint32_t m_white = 0xFFFFFFFF;
+};
+
+class EtaMetallicRoughnessMaterial : public EtaMaterial {
 	using EtaMaterial::EtaMaterial;
 
 public:
 	void setup() override {
-		addBufferBinding(0);
+		if (m_sharedMaterialBuffer.buffer == VK_NULL_HANDLE)
+			addBufferBinding(0);
+		else
+			addBufferBinding(0, m_sharedMaterialBuffer, m_bufferOffset);
 
-		auto shader = m_manager.addAsset<EtaShader>("default_metallic");
+		auto shader = m_manager.getAsset<EtaShader>("metallic_roughness");
 
-		shader->setVertShader("assets/shaders/default.vert.spv");
-		shader->setFragShader("assets/shaders/default_metallic.frag.spv");
+		if (shader == nullptr) {
+			shader = m_manager.addAsset<EtaShader>("metallic_roughness");
+			shader->setVertShader("assets/shaders/default.vert.spv");
+			shader->setFragShader("assets/shaders/metallic_roughness.frag.spv");
+			shader->load();
+		}
 
-		shader->load();
+		setShader(shader);
 
-		setShader("default_metallic");
+		addVec4(0, "baseColorFactor", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+		addFloat(0, "metallicFactor", 0.0f);
+		addFloat(0, "roughnessFactor", 1.0f);
+		addVec3(0, "emissiveFactor", glm::vec3(0.0f));
+		addInt(0, "alphaMode", 0);
+		addBool(0, "doubleSided", false);
 
-		addVec4(0, "colorFactors", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-		addFloat(0, "metalRoughFactors", 0.0f);
+		setTexture(1, "default_base_color");
 
-		// create default white texture
-		auto whiteTexture = m_manager.addAsset<EtaTextureAsset>("default_white");
-		uint32_t white = 0xFFFFFFFF;
-		whiteTexture->textureData = &white;
+		// metallic roughness texture
 
-		whiteTexture->setMagFilter(VK_FILTER_NEAREST);
-		whiteTexture->setMinFilter(VK_FILTER_NEAREST);
-		whiteTexture->setFormat(VK_FORMAT_R8G8B8A8_UNORM);
-		whiteTexture->setExtent({1, 1, 1});
+		// normal texture
 
-		whiteTexture->load();
+		// occlusion texture
 
-		addTextureBinding(1, whiteTexture);
-
-		fmt::println("Loaded default_metallic material");
+		// emissive texture
 	}
+
+	void setBaseColorFactor(float a, float b, float c, float d) { setVec4(0, "baseColorFactor", glm::vec4(a, b, c, d)); }
+
+	void setMetallicFactor(float value) { setFloat(0, "metallicFactor", value); }
+
+	void setRoughnessFactor(float value) { setFloat(0, "roughnessFactor", value); }
+
+	void setEmissiveFactor(const glm::vec3& value) { setVec3(0, "emissiveFactor", value); }
+
+	void setMetallicRoughnessTexture(std::shared_ptr<EtaTextureAsset> texture) { setTexture(1, texture->getName()); }
+
+	void setBaseColorTexture(std::shared_ptr<EtaTextureAsset> texture) { setTexture(2, texture->getName()); }
+
+	void printProperties() {
+		fmt::print("baseColorFactor: {}\n", m_bufferBindings[0].data.vec4Properties["baseColorFactor"].x,
+				   m_bufferBindings[0].data.vec4Properties["baseColorFactor"].y,
+				   m_bufferBindings[0].data.vec4Properties["baseColorFactor"].z,
+				   m_bufferBindings[0].data.vec4Properties["baseColorFactor"].w);
+
+		fmt::print("metallicFactor: {}\n", m_bufferBindings[0].data.floatProperties["metallicFactor"]);
+		fmt::print("roughnessFactor: {}\n", m_bufferBindings[0].data.floatProperties["roughnessFactor"]);
+	}
+
+	static inline size_t size =
+		sizeof(glm::vec4) + sizeof(float) + sizeof(float) + sizeof(glm::vec3) + sizeof(int) + sizeof(bool);
 };
 
 }; // namespace eta

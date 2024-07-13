@@ -11,6 +11,7 @@ public:
 	void* textureData = nullptr;
 
 	void load() override;
+	void destroy() override;
 
 	void setMagFilter(VkFilter filter) { m_samplerCreateInfo.magFilter = filter; }
 	void setMinFilter(VkFilter filter) { m_samplerCreateInfo.minFilter = filter; }
@@ -28,9 +29,13 @@ public:
 	void setUnnormalizedCoordinates(VkBool32 enable) { m_samplerCreateInfo.unnormalizedCoordinates = enable; }
 
 	void setFormat(VkFormat format) { m_image.imageFormat = format; }
-	void setExtent(VkExtent3D extent) { m_image.imageExtent = extent; }
+	void setExtent(int width, int height, int depth) {
+		m_image.imageExtent.width = width;
+		m_image.imageExtent.height = height;
+		m_image.imageExtent.depth = depth;
+	}
 
-	AllocatedImage& getImage() { return m_image; }
+	AllocatedImage getImage() { return m_image; }
 	VkSampler getSampler() { return m_sampler; }
 
 private:

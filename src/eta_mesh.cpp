@@ -6,7 +6,7 @@ using namespace eta;
 void EtaMeshAsset::load() {
 	if (m_meshFileData.filePath.empty()) {
 		update();
-		fmt::print("Mesh {} uploaded\n", getName());
+		fmt::print("Info: Mesh {} uploaded\n", getName());
 		return;
 	}
 

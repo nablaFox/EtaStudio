@@ -39,7 +39,7 @@ void EtaScene::addDefaultOrtographicCamera() {
 }
 
 void EtaScene::addRenderComponent(entt::entity entity, RenderComponent& component) {
-	auto material = component.material ? component.material : m_manager.getAsset<EtaMaterial>("default_metallic");
+	auto material = component.material ? component.material : m_manager.getAsset<EtaMaterial>("metallic_roughness");
 	m_entities.emplace<RenderComponent>(entity, material, component.topology, component.polygonMode, component.cullMode,
 										component.frontFace);
 }

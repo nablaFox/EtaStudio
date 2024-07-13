@@ -42,7 +42,7 @@ public:
 		};
 
 		std::vector<std::string> defaultMaterials = {
-			"default_metallic",
+			"metallic_roughness",
 		};
 
 		for (auto materialName : defaultMaterials) {
@@ -54,10 +54,7 @@ public:
 		}
 	}
 
-	void sleep() override {
-		fmt::print("EtaRenderingSystem::sleep()\n");
-		m_globalSceneData.destroy(m_device);
-	}
+	void sleep() override { m_globalSceneData.destroy(m_device); }
 
 	void update(float dt) override {
 		ETA_CHECK(m_device.startFrame(m_drawImage));
@@ -117,7 +114,15 @@ public:
 				.fragmentShader = material->m_shader->m_fragShaderModule,
 			};
 
-			m_device.drawGeometry(mesh->m_gpuMeshData, transformMatrix, renderingConfigs, m_globalSceneData, *material);
+			// TODO: check the material and enable/disable depth testing, blending, etc
+
+			m_device.bindResources(mesh->m_gpuMeshData, transformMatrix, renderingConfigs, m_globalSceneData, *material);
+
+			if (mesh->m_meshSurfaces.empty())
+				return m_device.drawIndexed(mesh->m_indices.size(), 1, 0, 0, 0);
+
+			for (auto& surface : mesh->m_meshSurfaces)
+				m_device.drawIndexed(surface.indexCount, 1, surface.firstIndex, 0, 0);
 		}
 	}
 

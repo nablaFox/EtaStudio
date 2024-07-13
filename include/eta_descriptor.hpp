@@ -25,9 +25,17 @@ struct EtaDescriptorSet {
 
 	void update(EtaDevice device);
 
+	void printWrites() {
+		for (auto& write : _writes) {
+			if (write.descriptorType == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER)
+				fmt::print("Binding: {}, Offset: {}, Size: {}\n", write.dstBinding, write.pBufferInfo->offset,
+						   write.pBufferInfo->range);
+		}
+	}
+
 private:
-	std::vector<VkDescriptorBufferInfo> _bufferInfos;
-	std::vector<VkDescriptorImageInfo> _imageInfos;
+	std::vector<std::shared_ptr<VkDescriptorBufferInfo>> _bufferInfos;
+	std::vector<std::shared_ptr<VkDescriptorImageInfo>> _imageInfos;
 	std::vector<VkWriteDescriptorSet> _writes;
 	VkDescriptorSet _descriptorSet;
 };

@@ -38,6 +38,7 @@ set(SRC_FILES
     ${SRC_PATH}/eta_scene.cpp
     ${SRC_PATH}/eta_swapchain.cpp
     ${SRC_PATH}/eta_texture.cpp
+	${SRC_PATH}/eta_model.cpp
     lib/vkbootstrap/VkBootstrap.cpp
     ${DEMOS_PATH}/main.cpp
     ${DEMOS_PATH}/cube.hpp

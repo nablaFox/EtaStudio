@@ -44,8 +44,6 @@ public:
 	std::shared_ptr<EtaMaterial> createMaterial(str name) { return m_assetManager.addAsset<EtaMaterial>(name); }
 	std::shared_ptr<EtaMaterial> getMaterial(str name) { return m_assetManager.getAsset<EtaMaterial>(name); }
 
-	void loadModelIntoScene(str modelName, str sceneName);
-
 	bool quit = false;
 
 protected:

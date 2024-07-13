@@ -118,7 +118,6 @@ public:
 	using EtaScene::EtaScene;
 
 	void setup() override {
-		fmt::println("PendulumScene setup");
 		auto entity = addEntity();
 
 		RenderComponent rendering = {.topology = VK_PRIMITIVE_TOPOLOGY_LINE_STRIP};

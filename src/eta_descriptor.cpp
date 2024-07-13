@@ -31,46 +31,45 @@ void EtaDescriptorLayout::destroy(EtaDevice& device) {
 
 void EtaDescriptorSet::writeImage(uint32_t binding, VkImageView imageView, VkSampler sampler, VkImageLayout layout,
 								  VkDescriptorType type) {
-	VkDescriptorImageInfo& info = _imageInfos.emplace_back(VkDescriptorImageInfo{
+	auto info = std::make_shared<VkDescriptorImageInfo>(VkDescriptorImageInfo{
 		.sampler = sampler,
 		.imageView = imageView,
 		.imageLayout = layout,
 	});
 
+	_imageInfos.push_back(info);
+
 	_writes.push_back({
 		.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
 		.pNext = nullptr,
-		.dstSet = VK_NULL_HANDLE,
+		.dstSet = _descriptorSet,
 		.dstBinding = binding,
 		.descriptorCount = 1,
 		.descriptorType = type,
-		.pImageInfo = &info,
+		.pImageInfo = info.get(),
 	});
 }
 
 void EtaDescriptorSet::writeBuffer(uint32_t binding, VkBuffer buffer, size_t size, size_t offset, VkDescriptorType type) {
-	VkDescriptorBufferInfo& info = _bufferInfos.emplace_back(VkDescriptorBufferInfo{
+	auto info = std::make_shared<VkDescriptorBufferInfo>(VkDescriptorBufferInfo{
 		.buffer = buffer,
 		.offset = offset,
 		.range = size,
 	});
 
-	VkWriteDescriptorSet write = {
+	_bufferInfos.push_back(info);
+
+	_writes.push_back({
 		.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
-		.dstSet = VK_NULL_HANDLE,
+		.dstSet = _descriptorSet,
 		.dstBinding = binding,
 		.descriptorCount = 1,
 		.descriptorType = type,
-		.pBufferInfo = &info,
-	};
-
-	_writes.push_back(write);
+		.pBufferInfo = info.get(),
+	});
 }
 
 void EtaDescriptorSet::update(EtaDevice device) {
-	for (auto& write : _writes)
-		write.dstSet = _descriptorSet;
-
 	vkUpdateDescriptorSets(device.getDevice(), (uint32_t)_writes.size(), _writes.data(), 0, nullptr);
 }
 

@@ -10,5 +10,11 @@ void EtaTextureAsset::load() {
 
 	ETA_CHECK_MSG(m_device.createSampler(&m_sampler, &m_samplerCreateInfo), "Failed to create sampler for texture " + getName());
 
+	fmt::print("Info: Loaded texture {}\n", getName());
 	return;
+}
+
+void EtaTextureAsset::destroy() {
+	m_device.destroyImage(m_image);
+	m_device.destroySampler(m_sampler);
 }
