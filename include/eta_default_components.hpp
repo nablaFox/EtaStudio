@@ -20,6 +20,7 @@ struct CameraComponent {
 	float far;
 	bool enabled;
 	float orthoSize;
+	glm::vec4 rect = {0.f, 0.f, 1.f, 1.f};
 };
 
 struct PointLightComponent {

@@ -65,8 +65,6 @@ VkResult EtaDevice::init(EtaWindow& window) {
 	VK_RETURN(allocateCommandBuffer(&m_immData._commandBuffer, m_immData._commandPool));
 	VK_RETURN(createFence(&m_immData._fence, VK_FENCE_CREATE_SIGNALED_BIT));
 
-	m_swapchain.init(window.getExtent(), VK_FORMAT_B8G8R8A8_UNORM);
-
 	std::vector<EtaDescriptorAllocator::PoolSizeRatio> frameSizes = {
 		{VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 3},
 		{VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 3},
@@ -92,9 +90,16 @@ VkResult EtaDevice::init(EtaWindow& window) {
 		.size = sizeof(DrawPushConstants),
 	};
 
+	m_swapchain.init(window.getExtent(), VK_FORMAT_B8G8R8A8_UNORM);
+
+	VK_RETURN(createDrawImage(window.getExtent(), m_drawImage));
+	VK_RETURN(createDepthImage(window.getExtent(), m_depthImage));
+
 	m_deletionQueue.push_function([this] {
 		m_globalDescriptorAllocator->resetDescriptorPool(*this);
 		m_globalDescriptorAllocator->destroyPoll(*this);
+		destroyImage(m_drawImage);
+		destroyImage(m_depthImage);
 		vmaDestroyAllocator(m_allocator);
 	});
 
@@ -364,24 +369,12 @@ VkResult EtaDevice::createDrawImage(VkExtent2D extent, AllocatedImage& image) {
 	drawImageUsages |= VK_IMAGE_USAGE_STORAGE_BIT;
 	drawImageUsages |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-	auto imageCreateInfo = etainit::imageCreateInfo(image.imageFormat, drawImageUsages, drawImageExtent);
+	return createImage(drawImageExtent, image.imageFormat, drawImageUsages, image, false);
+}
 
-	VmaAllocationCreateInfo imageAllocInfo{};
-	imageAllocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
-	imageAllocInfo.requiredFlags = VkMemoryPropertyFlags(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-
-	vmaCreateImage(m_allocator, &imageCreateInfo, &imageAllocInfo, &image.image, &image.allocation, nullptr);
-
-	auto imageViewCreateInfo = etainit::imageViewCreateInfo(image.imageFormat, image.image, VK_IMAGE_ASPECT_COLOR_BIT);
-
-	VK_RETURN(vkCreateImageView(m_device, &imageViewCreateInfo, nullptr, &image.imageView));
-
-	m_deletionQueue.push_function([this, image] {
-		vkDestroyImageView(m_device, image.imageView, nullptr);
-		vmaDestroyImage(m_allocator, image.image, image.allocation);
-	});
-
-	return VK_SUCCESS;
+VkResult EtaDevice::createDepthImage(VkExtent2D extent, AllocatedImage& image) {
+	return createImage({extent.width, extent.height, 1}, VK_FORMAT_D32_SFLOAT, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
+					   image);
 }
 
 VkResult EtaDevice::createSampler(VkSampler* sampler, VkSamplerCreateInfo* info) {
@@ -399,7 +392,7 @@ VkResult EtaDevice::destroySampler(VkSampler& sampler) {
 	return VK_SUCCESS;
 }
 
-VkResult EtaDevice::startFrame(AllocatedImage& drawImage) {
+VkResult EtaDevice::startFrame(glm::vec4 viewport, glm::vec4 clearColor) {
 	VK_RETURN(vkWaitForFences(m_device, 1, &getCurrentFrame()._renderFence, true, 1000000000));
 	VK_RETURN(vkResetFences(m_device, 1, &getCurrentFrame()._renderFence));
 
@@ -409,34 +402,32 @@ VkResult EtaDevice::startFrame(AllocatedImage& drawImage) {
 
 	VK_RETURN(vkResetCommandBuffer(currentCmd(), 0));
 
-	m_drawExtent.width = drawImage.imageExtent.width;
-	m_drawExtent.height = drawImage.imageExtent.height;
+	m_drawExtent.width = m_drawImage.imageExtent.width;
+	m_drawExtent.height = m_drawImage.imageExtent.height;
 
 	VkCommandBufferBeginInfo cmdBeginInfo = etainit::commandBufferBeginInfo(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
 	VK_RETURN(vkBeginCommandBuffer(currentCmd(), &cmdBeginInfo));
 
-	etautil::setViewport(currentCmd(), m_drawExtent);
+	etautil::setViewport(currentCmd(), viewport);
 	etautil::setScissor(currentCmd(), m_drawExtent);
 
-	etautil::makeColorWriteable(currentCmd(), drawImage);
-	VkRenderingAttachmentInfo colorAttachment = etainit::attachmentInfo(drawImage.imageView, nullptr, VK_IMAGE_LAYOUT_GENERAL);
+	etautil::makeColorWriteable(currentCmd(), m_drawImage);
+	VkRenderingAttachmentInfo colorAttachment =
+		etainit::attachmentInfo(m_drawImage.imageView, nullptr, m_drawImage.currentLayout);
 
-	// TODO: make this configurable
-	VkClearValue clearColor = {{0.0f, 0.0f, 0.0f, 1.0f}};
-	colorAttachment.clearValue = clearColor;
-	colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-	colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+	etautil::makeDepthWriteable(currentCmd(), m_depthImage);
+	VkRenderingAttachmentInfo depthAttachment = etainit::depthAttachmentInfo(m_depthImage.imageView, m_depthImage.currentLayout);
 
-	VkRenderingInfo renderInfo = etainit::renderingInfo(m_drawExtent, &colorAttachment, nullptr);
+	VkRenderingInfo renderInfo = etainit::renderingInfo(m_drawExtent, &colorAttachment, &depthAttachment);
 
 	vkCmdBeginRendering(currentCmd(), &renderInfo);
 
 	return VK_SUCCESS;
 }
 
-VkResult EtaDevice::endFrame(AllocatedImage& drawImage) {
+VkResult EtaDevice::endFrame() {
 	vkCmdEndRendering(currentCmd());
-	etautil::copyImageToImage(currentCmd(), drawImage, m_swapchain.getCurrentImage(), m_drawExtent, m_swapchain.getExtent());
+	etautil::copyImageToImage(currentCmd(), m_drawImage, m_swapchain.getCurrentImage(), m_drawExtent, m_swapchain.getExtent());
 	etautil::makePresentable(currentCmd(), m_swapchain.getCurrentImage());
 
 	VK_RETURN(vkEndCommandBuffer(currentCmd()));

@@ -75,6 +75,11 @@ inline void makeColorWriteable(VkCommandBuffer buffer, VulkanImage& image) {
 	image.currentLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 }
 
+inline void makeDepthWriteable(VkCommandBuffer buffer, VulkanImage& image) {
+	transitionImage(buffer, image.image, image.currentLayout, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL);
+	image.currentLayout = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
+}
+
 inline void makePresentable(VkCommandBuffer cmd, VulkanImage& image) {
 	transitionImage(cmd, image.image, image.currentLayout, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
 	image.currentLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
@@ -102,15 +107,15 @@ inline void copyImageToImage(VkCommandBuffer cmd, VulkanImage& src, VulkanImage&
 	copyImageToImage(cmd, src.image, dst.image, srcSize, dstSize);
 }
 
-inline void setViewport(VkCommandBuffer cmd, VkExtent2D extent, float minDepth = 0.0f, float maxDepth = 1.0f, int x = 0,
-						int y = 0) {
-	VkViewport viewport = {};
-	viewport.x = x;
-	viewport.y = y;
-	viewport.width = extent.width;
-	viewport.height = extent.height;
-	viewport.minDepth = minDepth;
-	viewport.maxDepth = maxDepth;
+inline void setViewport(VkCommandBuffer cmd, glm::vec4 view, float minDepth = 0.0f, float maxDepth = 1.0f) {
+	VkViewport viewport = {
+		.x = view.x,
+		.y = view.y,
+		.width = view.z,
+		.height = view.w,
+		.minDepth = minDepth,
+		.maxDepth = maxDepth,
+	};
 
 	vkCmdSetViewport(cmd, 0, 1, &viewport);
 }
@@ -123,6 +128,20 @@ inline void setScissor(VkCommandBuffer cmd, VkExtent2D extent, int x = 0, int y 
 	scissor.extent.height = extent.height;
 
 	vkCmdSetScissor(cmd, 0, 1, &scissor);
+}
+
+inline void setClearColor(glm::vec4 color, VkAttachmentLoadOp loadOp, VkAttachmentStoreOp storeOp,
+						  VkRenderingAttachmentInfo* attachment) {
+	attachment->loadOp = loadOp;
+	attachment->storeOp = storeOp;
+	attachment->clearValue = {{color.r, color.g, color.b, color.a}};
+}
+
+inline void setClearDepth(VkClearDepthStencilValue clearValue, VkAttachmentLoadOp loadOp, VkAttachmentStoreOp storeOp,
+						  VkRenderingAttachmentInfo* attachment) {
+	attachment->loadOp = loadOp;
+	attachment->storeOp = storeOp;
+	attachment->clearValue = {1.0f, 0};
 }
 
 } // namespace etautil

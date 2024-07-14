@@ -12,7 +12,15 @@ class EtaScene : public EtaAsset {
 public:
 	using EtaAsset::EtaAsset;
 
-	void load() override { fmt::println("Info: Scene {} loaded", getName()); }
+	struct SceneSettings {
+		glm::vec4 clearColor = {0.0f, 0.0f, 0.0f, 1.0f};
+		glm::vec4 ambientColor = {0.1f, 0.1f, 0.1f, 1.0f};
+	};
+
+	void load() override {
+		fmt::println("Info: Scene {} loaded", getName());
+		// TODO: here set the initial viewport
+	}
 
 	entt::entity addEntity() {
 		auto entity = m_entities.create();
@@ -82,13 +90,13 @@ public:
 		return nullptr;
 	}
 
-	struct GlobalSceneData {
-		glm::vec4 ambientColor = glm::vec4(0.1f, 0.1f, 0.1f, 1.0f);
-	} globalSceneData;
+	SceneSettings& settings() { return m_sceneSettings; }
 
 private:
 	entt::registry m_entities;
 	entt::entity m_activeCamera = entt::null;
+
+	SceneSettings m_sceneSettings;
 };
 
 }; // namespace eta

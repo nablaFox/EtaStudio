@@ -22,7 +22,11 @@ public:
 	void setTexture(int binding, str textureName);
 
 	void update() {
+		// updating the buffers means filling the buffers with the new data; we don't rewrite the ds because the layout is fixed
 		EtaBindings::updateBuffers(m_device);
+
+		// updating the texture means changing the texture image, i.e rewriting the ds. If the texture data is just changed, we
+		// don't need to "update" the texture in this sense
 		EtaBindings::updateTextures(m_device);
 	}
 

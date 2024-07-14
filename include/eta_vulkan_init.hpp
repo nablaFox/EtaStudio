@@ -144,7 +144,7 @@ inline VkRenderingAttachmentInfo attachmentInfo(VkImageView view, VkClearValue* 
 
 	colorAttachment.imageView = view;
 	colorAttachment.imageLayout = layout;
-	colorAttachment.loadOp = clear ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_LOAD;
+	colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 	colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
 
 	if (clear)

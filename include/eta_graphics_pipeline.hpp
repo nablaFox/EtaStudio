@@ -15,6 +15,7 @@ struct GraphicsPipelineConfigs {
 	VkFormat depthFormat = VK_FORMAT_D32_SFLOAT;
 	VkShaderModule vertexShader;
 	VkShaderModule fragmentShader;
+	bool enableDepthTest = true;
 };
 
 class EtaGraphicsPipeline : public EtaPipeline {
@@ -35,6 +36,7 @@ public:
 		etautil::hashCombine(hash, configs.depthFormat);
 		etautil::hashCombine(hash, configs.vertexShader);
 		etautil::hashCombine(hash, configs.fragmentShader);
+		etautil::hashCombine(hash, configs.enableDepthTest);
 
 		(etautil::hashCombine(hash, bindings.getHash()), ...);
 
@@ -55,7 +57,7 @@ public:
 	void setColorAttachmentFormat(VkFormat format);
 
 	void setDepthFormat(VkFormat format);
-	void enableDepthTest(bool enable, VkCompareOp op = VK_COMPARE_OP_LESS);
+	void enableDepthTest(bool enable, VkCompareOp op = VK_COMPARE_OP_GREATER_OR_EQUAL);
 	void disableDepthTest();
 
 private:

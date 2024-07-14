@@ -28,17 +28,12 @@ public:
 		: EtaSystem(engine), m_window(window), m_device(device) {}
 
 	void awake() override {
-		ETA_CHECK(m_device.createDrawImage(m_window.getExtent(), m_drawImage));
-
 		GraphicsPipelineConfigs baseRenderingConfigs = {
 			.inputTopology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
 			.polygonMode = VK_POLYGON_MODE_FILL,
 			.cullMode = VK_CULL_MODE_NONE,
 			.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE,
-			.colorAttachmentFormat = m_drawImage.imageFormat,
-			.depthFormat = VK_FORMAT_D32_SFLOAT,
-			.vertexShader = VK_NULL_HANDLE,
-			.fragmentShader = VK_NULL_HANDLE,
+			.enableDepthTest = true,
 		};
 
 		std::vector<std::string> defaultMaterials = {
@@ -57,31 +52,26 @@ public:
 	void sleep() override { m_globalSceneData.destroy(m_device); }
 
 	void update(float dt) override {
-		ETA_CHECK(m_device.startFrame(m_drawImage));
+		EtaScene::SceneSettings sceneSettings = currentScene().settings();
 
-		auto cameras = currentScene().getEntities<CameraComponent, TransformComponent>();
+		currentScene().getEntities<CameraComponent, TransformComponent>().each(
+			[&](auto entity, CameraComponent& camera, TransformComponent& transform) {
+				if (!camera.enabled)
+					return;
 
-		for (auto entity : cameras) {
-			CameraComponent camera = cameras.get<CameraComponent>(entity);
+				ETA_CHECK(m_device.startFrame(calculateViewRect(camera.rect, m_window.getExtent()), sceneSettings.clearColor));
 
-			if (!camera.enabled)
-				continue;
+				if (camera.orthoSize == 0.0f)
+					m_globalSceneData.setMat4(0, "viewproj", calculateViewProjMatrix(camera, transform));
+				else
+					m_globalSceneData.setMat4(0, "viewproj", calculateOrthoMatrix(camera, transform));
 
-			TransformComponent cameraTransform = cameras.get<TransformComponent>(entity);
+				m_globalSceneData.update();
 
-			if (camera.orthoSize == 0.0f)
-				m_globalSceneData.setMat4(0, "viewproj", calculateViewProjMatrix(camera, cameraTransform));
-			else
-				m_globalSceneData.setMat4(0, "viewproj", calculateOrthoMatrix(camera, cameraTransform));
+				render3D();
 
-			m_globalSceneData.update();
-
-			// TODO: set the viewport using the camera rect
-
-			render3D();
-		}
-
-		ETA_CHECK(m_device.endFrame(m_drawImage));
+				ETA_CHECK(m_device.endFrame());
+			});
 	}
 
 	void render3D() {
@@ -108,13 +98,10 @@ public:
 				.polygonMode = renderingInfo.polygonMode,
 				.cullMode = renderingInfo.cullMode,
 				.frontFace = renderingInfo.frontFace,
-				.colorAttachmentFormat = m_drawImage.imageFormat,
-				.depthFormat = VK_FORMAT_D32_SFLOAT,
 				.vertexShader = material->m_shader->m_vertShaderModule,
 				.fragmentShader = material->m_shader->m_fragShaderModule,
+				.enableDepthTest = true // TEMP: should be configurable
 			};
-
-			// TODO: check the material and enable/disable depth testing, blending, etc
 
 			m_device.bindResources(mesh->m_gpuMeshData, transformMatrix, renderingConfigs, m_globalSceneData, *material);
 
@@ -124,6 +111,10 @@ public:
 			for (auto& surface : mesh->m_meshSurfaces)
 				m_device.drawIndexed(surface.indexCount, 1, surface.firstIndex, 0, 0);
 		}
+	}
+
+	static glm::vec4 calculateViewRect(glm::vec4 rect, VkExtent2D viewport) {
+		return {rect.x * viewport.width, rect.y * viewport.height, rect.z * viewport.width, rect.w * viewport.height};
 	}
 
 	static glm::mat4 calculateViewProjMatrix(CameraComponent& camera, TransformComponent& transform) {
@@ -156,8 +147,6 @@ protected:
 
 private:
 	EtaDevice& m_device;
-
-	AllocatedImage m_drawImage;
 
 	EtaGlobalSceneData m_globalSceneData{m_device};
 };

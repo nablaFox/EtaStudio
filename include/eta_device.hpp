@@ -54,8 +54,8 @@ public:
 
 	std::shared_ptr<EtaDescriptorAllocator> getGlobalDescriptorAllocator() { return m_globalDescriptorAllocator; }
 
-	VkResult startFrame(AllocatedImage& drawImage);
-	VkResult endFrame(AllocatedImage& drawImage);
+	VkResult startFrame(glm::vec4 viewport, glm::vec4 clearColor);
+	VkResult endFrame();
 
 	VkCommandBuffer& currentCmd() { return getCurrentFrame()._commandBuffer; }
 
@@ -67,6 +67,9 @@ public:
 	void bindResources(GPUMeshData& meshData, glm::mat4 transform, GraphicsPipelineConfigs& pipelineConfigs,
 					   Bindings&&... bindings) {
 		auto cmd = currentCmd();
+
+		pipelineConfigs.colorAttachmentFormat = m_drawImage.imageFormat;
+		pipelineConfigs.depthFormat = m_depthImage.imageFormat;
 
 		auto pipeline = std::static_pointer_cast<EtaGraphicsPipeline>(getGraphicsPipeline(pipelineConfigs, bindings...));
 
@@ -99,6 +102,9 @@ public:
 		if (m_pipelines.find(bitmask) != m_pipelines.end())
 			return m_pipelines[bitmask];
 
+		configs.colorAttachmentFormat = m_drawImage.imageFormat;
+		configs.depthFormat = m_depthImage.imageFormat;
+
 		fmt::print("Debug: Graphics Pipeline not found, creating new one. Hash {} \n", bitmask);
 		return registerGraphicsPipeline(configs, bindings...);
 	}
@@ -106,6 +112,9 @@ public:
 	template <typename... Bindings>
 	std::shared_ptr<EtaPipeline> registerGraphicsPipeline(GraphicsPipelineConfigs configs, Bindings&&... bindings) {
 		auto newPipeline = std::make_shared<EtaGraphicsPipeline>();
+
+		newPipeline->setColorAttachmentFormat(m_drawImage.imageFormat);
+		newPipeline->setDepthFormat(m_depthImage.imageFormat);
 
 		newPipeline->setPushConstantRange(m_graphicsPushConstantRange);
 
@@ -135,10 +144,12 @@ public:
 	VkResult createSampler(VkSampler* sampler, VkSamplerCreateInfo* info);
 	VkResult fillImage(AllocatedImage& image, void* data);
 	VkResult createFilledImage(AllocatedImage& image, void* data, VkExtent3D size, VkFormat format, VkImageUsageFlags usage);
-	VkResult createDrawImage(VkExtent2D size, AllocatedImage& handle);
 	VkResult destroySampler(VkSampler* sampler);
 	VkResult destroyImage(AllocatedImage& handle);
 	VkResult destroySampler(VkSampler& sampler);
+
+	VkResult createDrawImage(VkExtent2D size, AllocatedImage& handle);
+	VkResult createDepthImage(VkExtent2D size, AllocatedImage& handle);
 
 	VkResult createCommandPool(VkCommandPool* pool, VkCommandPoolCreateFlags flags = 0);
 	VkResult allocateCommandBuffer(VkCommandBuffer* buffer, VkCommandPool pool);
@@ -176,6 +187,9 @@ private:
 
 	FrameData m_frames[MAX_FRAMES_IN_FLIGHT];
 	size_t m_currentFrame = 0;
+
+	AllocatedImage m_drawImage;
+	AllocatedImage m_depthImage;
 };
 
 }; // namespace eta

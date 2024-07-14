@@ -54,6 +54,7 @@ public:
 		setTexture(1, "default_base_color");
 
 		// metallic roughness texture
+		setTexture(2, "default_base_color");
 
 		// normal texture
 

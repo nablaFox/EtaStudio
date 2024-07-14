@@ -28,7 +28,18 @@ public:
 
 	GLFWwindow* getWindow() { return m_window; }
 
-	VkExtent2D getExtent() { return m_windowExtent; }
+	VkExtent2D getExtent() {
+		uint32_t width, height;
+		glfwGetFramebufferSize(m_window, (int*)&width, (int*)&height);
+
+		m_windowExtent.width = width;
+		m_windowExtent.height = height;
+
+		return m_windowExtent;
+	}
+
+	uint32_t width() { return m_windowExtent.width; }
+	uint32_t height() { return m_windowExtent.height; }
 
 private:
 	VkExtent2D m_windowExtent{700, 800};

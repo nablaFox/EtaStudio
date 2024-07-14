@@ -33,8 +33,9 @@ VkResult EtaGraphicsPipeline::build(VkDevice device, GraphicsPipelineConfigs con
 
 	// TEMP
 	disableBlending();
-	disableDepthTest();
 	disableMultisampling();
+
+	configs.enableDepthTest ? enableDepthTest(true) : disableDepthTest();
 
 	VkPipelineViewportStateCreateInfo viewportState = {
 		.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO,
@@ -130,7 +131,19 @@ void EtaGraphicsPipeline::setColorAttachmentFormat(VkFormat format) {
 
 void EtaGraphicsPipeline::setDepthFormat(VkFormat format) { m_renderInfo.depthAttachmentFormat = format; }
 
-void EtaGraphicsPipeline::enableDepthTest(bool enable, VkCompareOp op) {}
+void EtaGraphicsPipeline::enableDepthTest(bool enable, VkCompareOp op) {
+	m_depthStencil.depthTestEnable = enable ? VK_TRUE : VK_FALSE;
+	m_depthStencil.depthWriteEnable = enable ? VK_TRUE : VK_FALSE;
+	m_depthStencil.depthCompareOp = op;
+
+	// TEMP: I have to learn this
+	m_depthStencil.depthBoundsTestEnable = VK_FALSE;
+	m_depthStencil.stencilTestEnable = VK_FALSE;
+	m_depthStencil.front = {};
+	m_depthStencil.back = {};
+	m_depthStencil.minDepthBounds = 0.f;
+	m_depthStencil.maxDepthBounds = 1.f;
+}
 
 void EtaGraphicsPipeline::disableDepthTest() {
 	m_depthStencil.depthTestEnable = VK_FALSE;
