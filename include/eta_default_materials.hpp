@@ -3,6 +3,7 @@
 #include "eta_material.hpp"
 #include "eta_asset_manager.hpp"
 #include "eta_shader.hpp"
+#include "eta_texture.hpp"
 
 namespace eta {
 
@@ -54,7 +55,7 @@ public:
 		setTexture(1, "default_base_color");
 
 		// metallic roughness texture
-		setTexture(2, "default_base_color");
+		// setTexture(2, "default_metallic_roughness");
 
 		// normal texture
 
@@ -63,7 +64,9 @@ public:
 		// emissive texture
 	}
 
-	void setBaseColorFactor(float a, float b, float c, float d) { setVec4(0, "baseColorFactor", glm::vec4(a, b, c, d)); }
+	void setBaseColorFactor(float a, float b, float c, float d) {
+		setVec4(0, "baseColorFactor", glm::vec4(a, b, c, d));
+	}
 
 	void setMetallicFactor(float value) { setFloat(0, "metallicFactor", value); }
 
@@ -71,9 +74,9 @@ public:
 
 	void setEmissiveFactor(const glm::vec3& value) { setVec3(0, "emissiveFactor", value); }
 
-	void setMetallicRoughnessTexture(std::shared_ptr<EtaTextureAsset> texture) { setTexture(1, texture->getName()); }
+	void setBaseColorTexture(std::shared_ptr<EtaTextureAsset> texture) { setTexture(1, texture->getName()); }
 
-	void setBaseColorTexture(std::shared_ptr<EtaTextureAsset> texture) { setTexture(2, texture->getName()); }
+	void setMetallicRoughnessTexture(std::shared_ptr<EtaTextureAsset> texture) { setTexture(2, texture->getName()); }
 
 	void printProperties() {
 		fmt::print("baseColorFactor: {}\n", m_bufferBindings[0].data.vec4Properties["baseColorFactor"].x,
@@ -89,4 +92,4 @@ public:
 		sizeof(glm::vec4) + sizeof(float) + sizeof(float) + sizeof(glm::vec3) + sizeof(int) + sizeof(bool);
 };
 
-}; // namespace eta
+};	// namespace eta

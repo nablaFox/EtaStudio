@@ -25,6 +25,10 @@ include_directories(
     lib/entt
 )
 
+add_subdirectory(lib/glfw)
+add_subdirectory(lib/fmt)
+add_subdirectory(lib/fastgltf)
+
 # Source files
 set(SRC_FILES
     ${SRC_PATH}/eta_bindings.cpp
@@ -41,8 +45,8 @@ set(SRC_FILES
 	${SRC_PATH}/eta_model.cpp
     lib/vkbootstrap/VkBootstrap.cpp
     ${DEMOS_PATH}/main.cpp
-    ${DEMOS_PATH}/cube.hpp
-    ${DEMOS_PATH}/pendulum.hpp
+	${SRC_PATH}/eta_input_system.cpp
+	${SRC_PATH}/eta_rendering_system.cpp
 )
 
 # Shader files
@@ -65,9 +69,9 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 
 # Link libraries
 target_link_libraries(${PROJECT_NAME}
-    ${CMAKE_SOURCE_DIR}/lib/glfw/src/libglfw3.a
-    ${CMAKE_SOURCE_DIR}/lib/fmt/libfmt.a
-    ${CMAKE_SOURCE_DIR}/lib/fastgltf/libfastgltf.a
+    glfw
+    fmt
+    fastgltf
     dl
     pthread
     X11

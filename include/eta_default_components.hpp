@@ -1,16 +1,14 @@
 #pragma once
 
-#include "eta_pch.hpp"
-
 namespace eta {
 
 class EtaMeshAsset;
 class EtaMaterial;
 
 struct TransformComponent {
-	glm::vec3 position;
-	glm::quat rotation;
-	glm::vec3 scale;
+	glm::vec3 position = glm::vec3(0);
+	glm::quat rotation = glm::quat(1, 0, 0, 0);
+	glm::vec3 scale = glm::vec3(1.0f);
 };
 
 struct CameraComponent {
@@ -55,4 +53,4 @@ struct InputComponent {
 	double mouseY = 0.0;
 };
 
-}; // namespace eta
+};	// namespace eta

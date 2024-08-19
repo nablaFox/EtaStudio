@@ -18,24 +18,11 @@ EtaGraphicsPipeline::EtaGraphicsPipeline() {
 	m_renderInfo = {.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO};
 }
 
-VkResult EtaGraphicsPipeline::build(VkDevice device, GraphicsPipelineConfigs configs) {
+VkResult EtaGraphicsPipeline::build(VkDevice device) {
 	m_pipelineLayoutInfo.setLayoutCount = m_descriptorSetLayouts.size();
 	m_pipelineLayoutInfo.pSetLayouts = m_descriptorSetLayouts.data();
 
 	VK_RETURN(vkCreatePipelineLayout(device, &m_pipelineLayoutInfo, nullptr, &m_pipelineLayout));
-
-	setShaders(configs.vertexShader, configs.fragmentShader);
-	setInputTopology(configs.inputTopology);
-	setPolygonMode(configs.polygonMode);
-	setCullMode(configs.cullMode, configs.frontFace);
-	setColorAttachmentFormat(configs.colorAttachmentFormat);
-	setDepthFormat(configs.depthFormat);
-
-	// TEMP
-	disableBlending();
-	disableMultisampling();
-
-	configs.enableDepthTest ? enableDepthTest(true) : disableDepthTest();
 
 	VkPipelineViewportStateCreateInfo viewportState = {
 		.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO,
@@ -53,7 +40,8 @@ VkResult EtaGraphicsPipeline::build(VkDevice device, GraphicsPipelineConfigs con
 		.pAttachments = &m_colorBlendAttachment,
 	};
 
-	VkPipelineVertexInputStateCreateInfo vertexInputInfo = {.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO};
+	VkPipelineVertexInputStateCreateInfo vertexInputInfo = {
+		.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO};
 
 	VkDynamicState state[2] = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR};
 
@@ -131,9 +119,9 @@ void EtaGraphicsPipeline::setColorAttachmentFormat(VkFormat format) {
 
 void EtaGraphicsPipeline::setDepthFormat(VkFormat format) { m_renderInfo.depthAttachmentFormat = format; }
 
-void EtaGraphicsPipeline::enableDepthTest(bool enable, VkCompareOp op) {
-	m_depthStencil.depthTestEnable = enable ? VK_TRUE : VK_FALSE;
-	m_depthStencil.depthWriteEnable = enable ? VK_TRUE : VK_FALSE;
+void EtaGraphicsPipeline::enableDepthTest(VkCompareOp op) {
+	m_depthStencil.depthTestEnable = VK_TRUE;
+	m_depthStencil.depthWriteEnable = VK_TRUE;
 	m_depthStencil.depthCompareOp = op;
 
 	// TEMP: I have to learn this

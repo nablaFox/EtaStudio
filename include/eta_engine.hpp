@@ -77,4 +77,4 @@ private:
 	float m_deltaTime = 0.0f;
 };
 
-}; // namespace eta
+};	// namespace eta

@@ -4,6 +4,7 @@
 #include "eta_asset.hpp"
 
 namespace eta {
+
 class EtaShader;
 
 class EtaMaterial : public EtaAsset, public EtaBindings {
@@ -22,11 +23,12 @@ public:
 	void setTexture(int binding, str textureName);
 
 	void update() {
-		// updating the buffers means filling the buffers with the new data; we don't rewrite the ds because the layout is fixed
+		// updating the buffers means filling the buffers with the new data; we don't rewrite the ds because the layout
+		// is fixed
 		EtaBindings::updateBuffers(m_device);
 
-		// updating the texture means changing the texture image, i.e rewriting the ds. If the texture data is just changed, we
-		// don't need to "update" the texture in this sense
+		// updating the texture means changing the texture image, i.e rewriting the ds. If the texture data is just
+		// changed, we don't need to "update" the texture in this sense
 		EtaBindings::updateTextures(m_device);
 	}
 
@@ -35,13 +37,17 @@ public:
 		m_bufferOffset = offset;
 	}
 
+	void setDescriptorAllocator(std::shared_ptr<EtaDescriptorAllocator> allocator) {
+		m_descriptorAllocator = allocator;
+	}
+
 protected:
 	std::shared_ptr<EtaShader> m_shader;
 
 	AllocatedBuffer m_sharedMaterialBuffer = {};
-	size_t m_bufferOffset = 0; // TODO: AllocatedBuffer should have an offset field
+	size_t m_bufferOffset = 0;	// TODO: AllocatedBuffer should have an offset field
 
 	std::shared_ptr<EtaDescriptorAllocator> m_descriptorAllocator;
 };
 
-}; // namespace eta
+};	// namespace eta

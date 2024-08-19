@@ -1,7 +1,5 @@
 #pragma once
 
-#include "eta_pch.hpp"
-
 namespace etainit {
 
 inline VkCommandPoolCreateInfo commandPoolCreateInfo(uint32_t queueFamilyIndex, VkCommandPoolCreateFlags flags = 0) {
@@ -41,7 +39,8 @@ inline VkCommandBufferSubmitInfo commandBufferSubmitInfo(VkCommandBuffer cmd) {
 	return info;
 }
 
-inline VkSubmitInfo2 submitInfo(VkCommandBufferSubmitInfo* cmd, VkSemaphoreSubmitInfo* signalSemaphoreInfo,
+inline VkSubmitInfo2 submitInfo(VkCommandBufferSubmitInfo* cmd,
+								VkSemaphoreSubmitInfo* signalSemaphoreInfo,
 								VkSemaphoreSubmitInfo* waitSemaphoreInfo) {
 	VkSubmitInfo2 info = {};
 	info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO_2;
@@ -160,7 +159,7 @@ inline VkRenderingAttachmentInfo depthAttachmentInfo(VkImageView view, VkImageLa
 
 	depthAttachment.imageView = view;
 	depthAttachment.imageLayout = layout;
-	depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR; // we reset at the beginning of the frame
+	depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;  // we reset at the beginning of the frame
 	depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
 	depthAttachment.clearValue.depthStencil.depth = 0.f;
 
@@ -188,7 +187,8 @@ inline VkPipelineLayoutCreateInfo computePipelineLayoutCreateInfo() {
 	return computeLayout;
 }
 
-inline VkPipelineShaderStageCreateInfo pipelineShaderStageCreateInfo(VkShaderStageFlagBits stage, VkShaderModule shaderModule,
+inline VkPipelineShaderStageCreateInfo pipelineShaderStageCreateInfo(VkShaderStageFlagBits stage,
+																	 VkShaderModule shaderModule,
 																	 const char* entry = "main") {
 	VkPipelineShaderStageCreateInfo info = {};
 	info.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -202,7 +202,8 @@ inline VkPipelineShaderStageCreateInfo pipelineShaderStageCreateInfo(VkShaderSta
 }
 
 // using dynamic rendering, we pass this structure
-inline VkRenderingInfo renderingInfo(VkExtent2D renderExtent, VkRenderingAttachmentInfo* colorAttachment,
+inline VkRenderingInfo renderingInfo(VkExtent2D renderExtent,
+									 VkRenderingAttachmentInfo* colorAttachment,
 									 VkRenderingAttachmentInfo* depthAttachment) {
 	VkRenderingInfo renderInfo{};
 	renderInfo.sType = VK_STRUCTURE_TYPE_RENDERING_INFO;
@@ -218,4 +219,4 @@ inline VkRenderingInfo renderingInfo(VkExtent2D renderExtent, VkRenderingAttachm
 	return renderInfo;
 }
 
-} // namespace etainit
+}  // namespace etainit

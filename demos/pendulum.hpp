@@ -1,6 +1,9 @@
 #pragma once
 
-#include "../include/eta_app.hpp"
+#include "../include/eta_system.hpp"
+#include "../include/eta_scene.hpp"
+#include "../include/eta_mesh.hpp"
+#include "../include/eta_default_components.hpp"
 
 using namespace eta;
 
@@ -28,33 +31,38 @@ public:
 
 	void update(float deltaTime) override {
 		auto entities = currentScene().getEntities<MeshComponent, PendulumComponent, InputComponent>();
-		auto cameraComponent = currentScene().getActiveCamera();
-		auto cameraTransform = currentScene().getActiveCameraTransform();
+		auto camera = currentScene().getActiveCamera();
 
-		entities.each([this, deltaTime, cameraComponent, cameraTransform](auto entity, MeshComponent& mesh,
-																		  PendulumComponent& pendulum, InputComponent& input) {
-			if (cameraComponent && input.keys[GLFW_KEY_UP]) {
-				cameraComponent->orthoSize += 0.1f;
+		if (camera == entt::null)
+			return;
+
+		auto& cameraTransform = currentScene().getComponent<TransformComponent>(camera);
+		auto& cameraComponent = currentScene().getComponent<CameraComponent>(camera);
+
+		entities.each([this, deltaTime, &cameraComponent, &cameraTransform](
+						  auto entity, MeshComponent& mesh, PendulumComponent& pendulum, InputComponent& input) {
+			if (input.keys[GLFW_KEY_UP]) {
+				cameraComponent.orthoSize += 0.1f;
 			}
 
-			if (cameraComponent && input.keys[GLFW_KEY_DOWN]) {
-				cameraComponent->orthoSize -= 0.1f;
+			if (input.keys[GLFW_KEY_DOWN]) {
+				cameraComponent.orthoSize -= 0.1f;
 			}
 
 			if (input.keys[GLFW_KEY_A]) {
-				cameraTransform->position.x -= deltaTime;
+				cameraTransform.position.x -= deltaTime;
 			}
 
 			if (input.keys[GLFW_KEY_D]) {
-				cameraTransform->position.x += deltaTime;
+				cameraTransform.position.x += deltaTime;
 			}
 
 			if (input.keys[GLFW_KEY_W]) {
-				cameraTransform->position.y += deltaTime;
+				cameraTransform.position.y += deltaTime;
 			}
 
 			if (input.keys[GLFW_KEY_S]) {
-				cameraTransform->position.y -= deltaTime;
+				cameraTransform.position.y -= deltaTime;
 			}
 
 			if (input.keys[GLFW_KEY_RIGHT]) {
@@ -125,10 +133,10 @@ public:
 
 		addMeshComponent(entity, "PendulumMesh");
 
-		addComponent<PendulumComponent>(entity, 0.5f, // length
-										4.f,		  // angle
-										0.10f,		  // angularVelocity
-										0.4f,		  // angularAcceleration
+		addComponent<PendulumComponent>(entity, 0.5f,  // length
+										4.f,		   // angle
+										0.10f,		   // angularVelocity
+										0.4f,		   // angularAcceleration
 										glm::vec3(0.0f, 0.0f, 0.0f));
 
 		addComponent<InputComponent>(entity);

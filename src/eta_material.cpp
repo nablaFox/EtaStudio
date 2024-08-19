@@ -29,4 +29,6 @@ void EtaMaterial::load() {
 	fmt::println("Info: Loaded material {}", getName());
 }
 
-void EtaMaterial::destroy() { EtaBindings::destroy(m_device); }
+void EtaMaterial::destroy() {
+	EtaBindings::destroy(m_device);
+}

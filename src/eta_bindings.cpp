@@ -155,9 +155,9 @@ void EtaBindings::updateBuffers(EtaDevice& device) {
 		for (const auto& [name, value] : bufferBinding.data.floatProperties)
 			appendData(value, sizeof(float));
 
-		ETA_CHECK_MSG(
-			device.fillBuffer(bufferBinding.m_uboBuffer, alignedBuffer.data(), alignedBuffer.size(), bufferBinding.offset),
-			"Failed to fill buffer");
+		ETA_CHECK_MSG(device.fillBuffer(bufferBinding.m_uboBuffer, alignedBuffer.data(), alignedBuffer.size(),
+										bufferBinding.offset),
+					  "Failed to fill buffer");
 
 		bufferBinding.m_dirty = false;
 	}

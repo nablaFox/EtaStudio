@@ -65,27 +65,27 @@ struct GPUMeshData {
 	size_t indexCount;
 };
 
-#define VK_RETURN(x)                                                                                                             \
-	{                                                                                                                            \
-		VkResult err = x;                                                                                                        \
-		if (err != VK_SUCCESS)                                                                                                   \
-			return err;                                                                                                          \
+#define VK_RETURN(x)           \
+	{                          \
+		VkResult err = x;      \
+		if (err != VK_SUCCESS) \
+			return err;        \
 	}
 
-#define ETA_CHECK(x)                                                                                                             \
-	do {                                                                                                                         \
-		VkResult err = x;                                                                                                        \
-		if (err) {                                                                                                               \
-			fmt::print("Detected Vulkan Error: {}", string_VkResult(err));                                                       \
-			exit(err);                                                                                                           \
-		}                                                                                                                        \
+#define ETA_CHECK(x)                                                       \
+	do {                                                                   \
+		VkResult err = x;                                                  \
+		if (err) {                                                         \
+			fmt::print("Detected Vulkan Error: {}", string_VkResult(err)); \
+			exit(err);                                                     \
+		}                                                                  \
 	} while (0)
 
-#define ETA_CHECK_MSG(x, msg)                                                                                                    \
-	do {                                                                                                                         \
-		VkResult err = x;                                                                                                        \
-		if (err) {                                                                                                               \
-			fmt::print("Detected Error: {} - {}", string_VkResult(err), msg);                                                    \
-			exit(err);                                                                                                           \
-		}                                                                                                                        \
+#define ETA_CHECK_MSG(x, msg)                                                 \
+	do {                                                                      \
+		VkResult err = x;                                                     \
+		if (err) {                                                            \
+			fmt::print("Detected Error: {} - {}", string_VkResult(err), msg); \
+			exit(err);                                                        \
+		}                                                                     \
 	} while (0)

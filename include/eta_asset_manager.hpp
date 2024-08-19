@@ -1,6 +1,7 @@
 #pragma once
 
-#include "eta_pch.hpp"
+#include "eta_device.hpp"
+#include "eta_asset.hpp"
 
 #include "eta_mesh.hpp"
 #include "eta_texture.hpp"
@@ -118,4 +119,4 @@ private:
 	EtaDevice& m_device;
 };
 
-}; // namespace eta
+};	// namespace eta

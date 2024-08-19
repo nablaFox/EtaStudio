@@ -1,7 +1,5 @@
 #pragma once
 
-#include "eta_pch.hpp"
-
 namespace eta {
 
 class EtaDevice;
@@ -18,7 +16,12 @@ struct EtaDescriptorLayout {
 };
 
 struct EtaDescriptorSet {
-	void writeImage(uint32_t binding, VkImageView imageView, VkSampler sampler, VkImageLayout layout, VkDescriptorType type);
+	void writeImage(uint32_t binding,
+					VkImageView imageView,
+					VkSampler sampler,
+					VkImageLayout layout,
+					VkDescriptorType type);
+
 	void writeBuffer(uint32_t binding, VkBuffer buffer, size_t size, size_t offset, VkDescriptorType type);
 
 	VkDescriptorSet& get() { return _descriptorSet; }
@@ -53,4 +56,4 @@ struct EtaDescriptorAllocator {
 	void destroyPoll(EtaDevice& device);
 };
 
-}; // namespace eta
+};	// namespace eta

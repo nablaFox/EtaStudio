@@ -1,7 +1,5 @@
 #pragma once
 
-#include "eta_pch.hpp"
-
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
@@ -9,7 +7,7 @@ namespace eta {
 
 class EtaWindow {
 public:
-	EtaWindow(){};
+	EtaWindow() {};
 
 	VkResult init(const char* title, uint32_t width, uint32_t height) {
 		glfwInit();
@@ -46,4 +44,4 @@ private:
 	GLFWwindow* m_window;
 };
 
-}; // namespace eta
+};	// namespace eta

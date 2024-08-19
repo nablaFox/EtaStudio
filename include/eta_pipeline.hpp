@@ -1,8 +1,5 @@
 #pragma once
 
-#include "eta_descriptor.hpp"
-#include "eta_pch.hpp"
-
 namespace eta {
 
 class EtaPipeline {
@@ -31,4 +28,4 @@ protected:
 	VkPipelineLayoutCreateInfo m_pipelineLayoutInfo;
 };
 
-}; // namespace eta
+};	// namespace eta

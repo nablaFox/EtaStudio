@@ -81,7 +81,9 @@ private:
 	int m_oneTextureDirty = false;
 
 	template <typename T>
-	void setBufferProperty(int binding, const std::string& name, const T& value,
+	void setBufferProperty(int binding,
+						   const std::string& name,
+						   const T& value,
 						   std::unordered_map<std::string, T>& propertyMap) {
 		auto& bufferBinding = m_bufferBindings[binding];
 		propertyMap[name] = value;
@@ -90,7 +92,9 @@ private:
 	}
 
 	template <typename T>
-	void updateBufferProperty(int binding, const std::string& name, const T& value,
+	void updateBufferProperty(int binding,
+							  const std::string& name,
+							  const T& value,
 							  std::unordered_map<std::string, T>& propertyMap) {
 		auto& bufferBinding = m_bufferBindings[binding];
 		if (propertyMap.find(name) == propertyMap.end())
@@ -100,4 +104,4 @@ private:
 	}
 };
 
-} // namespace eta
+}  // namespace eta

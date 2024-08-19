@@ -1,7 +1,6 @@
 #pragma once
 
 #include "eta_system.hpp"
-#include "eta_asset_manager.hpp"
 #include "eta_engine.hpp"
 
 namespace eta {
@@ -22,4 +21,4 @@ public:
 
 	virtual void setup() = 0;
 };
-} // namespace eta
+}  // namespace eta

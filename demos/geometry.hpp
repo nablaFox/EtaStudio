@@ -1,7 +1,6 @@
 #pragma once
 
-#include "../include/eta_app.hpp"
-#include "rotation_system.hpp"
+#include "demo_systems.hpp"
 #include <glm/gtc/quaternion.hpp>
 
 using namespace eta;
@@ -103,7 +102,7 @@ public:
 	}
 };
 
-class CubeScene : public EtaScene {
+class GeometryScene : public EtaScene {
 public:
 	using EtaScene::EtaScene;
 
@@ -119,14 +118,16 @@ public:
 
 		addComponent<InputComponent>(cube);
 
-		auto pyramid = addEntity();
+		auto pyramid = addEntity({
+			.position = glm::vec3(-1.5f, 0.0f, 0.0f),
+		});
 
 		addRenderComponent(pyramid);
 		addMeshComponent(pyramid, "PyramidMesh");
 
 		addComponent<RotationComponent>(pyramid, 0.5f, glm::vec3(0.0f, 1.0f, 0.0f));
-
-		getComponent<TransformComponent>(pyramid).position = glm::vec3(1.5f, 0.0f, 0.0f);
+		addComponent<InputComponent>(pyramid);
+		addComponent<MovementComponent>(pyramid, 1.0f);
 
 		addDefaultCamera();
 	};

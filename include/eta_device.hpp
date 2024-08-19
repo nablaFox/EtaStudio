@@ -6,7 +6,6 @@
 #include "eta_utils.hpp"
 #include "eta_descriptor.hpp"
 #include "eta_swapchain.hpp"
-#include "eta_vulkan_images.hpp"
 
 namespace eta {
 
@@ -42,6 +41,16 @@ public:
 		glm::mat4 transform;
 	};
 
+	struct GraphicsPipelineConfigs {
+		VkPrimitiveTopology inputTopology;
+		VkPolygonMode polygonMode;
+		VkCullModeFlags cullMode;
+		VkFrontFace frontFace;
+		VkPipelineColorBlendAttachmentState colorBlendAttachment;
+		VkShaderModule vertexShader;
+		VkShaderModule fragmentShader;
+	};
+
 public:
 	static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 	static constexpr bool ENABLE_VALIDATION_LAYERS = true;
@@ -64,14 +73,12 @@ public:
 	void waitIdle() { vkDeviceWaitIdle(m_device); }
 
 	template <typename... Bindings>
-	void bindResources(GPUMeshData& meshData, glm::mat4 transform, GraphicsPipelineConfigs& pipelineConfigs,
+	void bindResources(GPUMeshData& meshData, glm::mat4 modelMatrix, GraphicsPipelineConfigs& pipelineConfigs,
 					   Bindings&&... bindings) {
 		auto cmd = currentCmd();
 
-		pipelineConfigs.colorAttachmentFormat = m_drawImage.imageFormat;
-		pipelineConfigs.depthFormat = m_depthImage.imageFormat;
-
-		auto pipeline = std::static_pointer_cast<EtaGraphicsPipeline>(getGraphicsPipeline(pipelineConfigs, bindings...));
+		auto pipeline =
+			std::static_pointer_cast<EtaGraphicsPipeline>(getGraphicsPipeline(pipelineConfigs, bindings...));
 
 		auto bindDescriptorSets = [&cmd, &pipeline](auto& binding, int index) {
 			pipeline->bindDescriptorSet(cmd, binding.getDescriptorSet(), index);
@@ -81,7 +88,7 @@ public:
 		((bindDescriptorSets(bindings, i++)), ...);
 
 		DrawPushConstants pushConstants = {
-			._transform = transform,
+			._transform = modelMatrix,
 			._vertexBufferAddress = meshData.vertexBufferAddress,
 		};
 
@@ -91,19 +98,17 @@ public:
 		vkCmdBindIndexBuffer(cmd, meshData.indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT32);
 	}
 
-	void drawIndexed(size_t indexCount, size_t instanceCount, size_t firstIndex, size_t vertexOffset, size_t firstInstance) {
+	void drawIndexed(size_t indexCount, size_t instanceCount, size_t firstIndex, size_t vertexOffset,
+					 size_t firstInstance) {
 		auto cmd = currentCmd();
 		vkCmdDrawIndexed(cmd, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
 	}
 
 	template <typename... Bindings>
 	std::shared_ptr<EtaPipeline> getGraphicsPipeline(GraphicsPipelineConfigs& configs, Bindings&&... bindings) {
-		size_t bitmask = EtaGraphicsPipeline::calculateHash(configs, bindings...); // TODO: avoid recalculating hash every time
+		size_t bitmask = calculateHash(configs, bindings...); // TODO: avoid recalculating hash every time
 		if (m_pipelines.find(bitmask) != m_pipelines.end())
 			return m_pipelines[bitmask];
-
-		configs.colorAttachmentFormat = m_drawImage.imageFormat;
-		configs.depthFormat = m_depthImage.imageFormat;
 
 		fmt::print("Debug: Graphics Pipeline not found, creating new one. Hash {} \n", bitmask);
 		return registerGraphicsPipeline(configs, bindings...);
@@ -113,23 +118,35 @@ public:
 	std::shared_ptr<EtaPipeline> registerGraphicsPipeline(GraphicsPipelineConfigs configs, Bindings&&... bindings) {
 		auto newPipeline = std::make_shared<EtaGraphicsPipeline>();
 
+		newPipeline->setInputTopology(configs.inputTopology);
+		newPipeline->setPolygonMode(configs.polygonMode);
+		newPipeline->setShaders(configs.vertexShader, configs.fragmentShader);
+		newPipeline->setCullMode(configs.cullMode, configs.frontFace);
+		newPipeline->disableMultisampling(); // temp
+		newPipeline->disableBlending();		 // temp
+
+		// default
+		newPipeline->enableDepthTest();
 		newPipeline->setColorAttachmentFormat(m_drawImage.imageFormat);
 		newPipeline->setDepthFormat(m_depthImage.imageFormat);
-
 		newPipeline->setPushConstantRange(m_graphicsPushConstantRange);
 
-		([&](auto&& binding) { newPipeline->addSlotLayout(std::forward<decltype(binding)>(binding).getDescriptorSetLayout()); }(
-			 bindings),
-		 ...);
+		(
+			[&](auto&& binding) {
+				newPipeline->addSlotLayout(std::forward<decltype(binding)>(binding).getDescriptorSetLayout());
+			}(bindings),
+			...);
 
-		newPipeline->build(m_device, configs);
+		newPipeline->build(m_device);
+
 		fmt::print("Debug: Graphics Pipeline built\n");
 
-		return m_pipelines[EtaGraphicsPipeline::calculateHash(configs, bindings...)] = newPipeline;
+		return m_pipelines[calculateHash(configs, bindings...)] = newPipeline;
 	}
 
 public:
-	VkResult createBuffer(size_t allocSize, VkBufferUsageFlags usage, VmaMemoryUsage memoryUsage, AllocatedBuffer& buffer);
+	VkResult createBuffer(size_t allocSize, VkBufferUsageFlags usage, VmaMemoryUsage memoryUsage,
+						  AllocatedBuffer& buffer);
 	VkResult createUBO(size_t allocSize, AllocatedBuffer& uboBuffer);
 	VkResult fillBuffer(AllocatedBuffer& buffer, void* data, size_t size, size_t offset);
 	VkResult createStagingBuffer(size_t allocSize, AllocatedBuffer& stagingBuffer, void*& data);
@@ -143,7 +160,8 @@ public:
 						 bool mipmapped = false);
 	VkResult createSampler(VkSampler* sampler, VkSamplerCreateInfo* info);
 	VkResult fillImage(AllocatedImage& image, void* data);
-	VkResult createFilledImage(AllocatedImage& image, void* data, VkExtent3D size, VkFormat format, VkImageUsageFlags usage);
+	VkResult createFilledImage(AllocatedImage& image, void* data, VkExtent3D size, VkFormat format,
+							   VkImageUsageFlags usage);
 	VkResult destroySampler(VkSampler* sampler);
 	VkResult destroyImage(AllocatedImage& handle);
 	VkResult destroySampler(VkSampler& sampler);
@@ -164,6 +182,22 @@ public:
 	VkResult immediateSubmit(std::function<void(VkCommandBuffer cmd)>&& function);
 
 private:
+	template <typename... Bindings>
+	size_t calculateHash(GraphicsPipelineConfigs& configs, Bindings&&... bindings) {
+		size_t hash = 0;
+
+		etautil::hashCombine(hash, configs.inputTopology);
+		etautil::hashCombine(hash, configs.polygonMode);
+		etautil::hashCombine(hash, configs.cullMode);
+		etautil::hashCombine(hash, configs.frontFace);
+		etautil::hashCombine(hash, configs.vertexShader);
+		etautil::hashCombine(hash, configs.fragmentShader);
+
+		(etautil::hashCombine(hash, bindings.getHash()), ...);
+
+		return hash;
+	}
+
 	VkInstance m_vkInstance;
 	VkDebugUtilsMessengerEXT m_debugMessenger;
 	VkSurfaceKHR m_surface;

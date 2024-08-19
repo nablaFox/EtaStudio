@@ -1,7 +1,6 @@
 #include "../include/eta_descriptor.hpp"
 #include "../include/eta_device.hpp"
 #include "../include/eta_window.hpp"
-#include "../include/eta_shader.hpp"
 #include "../include/eta_vulkan_init.hpp"
 #include "../include/eta_vulkan_images.hpp"
 
@@ -275,7 +274,8 @@ VkResult EtaDevice::immediateSubmit(std::function<void(VkCommandBuffer cmd)>&& f
 	ETA_CHECK(vkResetFences(m_device, 1, &m_immData._fence));
 	ETA_CHECK(vkResetCommandBuffer(cmd, 0));
 
-	VkCommandBufferBeginInfo cmdBeginInfo = etainit::commandBufferBeginInfo(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+	VkCommandBufferBeginInfo cmdBeginInfo =
+		etainit::commandBufferBeginInfo(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
 	ETA_CHECK(vkBeginCommandBuffer(cmd, &cmdBeginInfo));
 
 	function(cmd);
@@ -308,7 +308,8 @@ VkResult EtaDevice::createImage(VkExtent3D size, VkFormat format, VkImageUsageFl
 
 	VK_RETURN(vmaCreateImage(m_allocator, &imgInfo, &allocInfo, &handle.image, &handle.allocation, nullptr));
 
-	VkImageAspectFlags aspectFlag = format == VK_FORMAT_D32_SFLOAT ? VK_IMAGE_ASPECT_DEPTH_BIT : VK_IMAGE_ASPECT_COLOR_BIT;
+	VkImageAspectFlags aspectFlag =
+		format == VK_FORMAT_D32_SFLOAT ? VK_IMAGE_ASPECT_DEPTH_BIT : VK_IMAGE_ASPECT_COLOR_BIT;
 	VkImageViewCreateInfo viewInfo = etainit::imageViewCreateInfo(format, handle.image, aspectFlag);
 	viewInfo.subresourceRange.levelCount = imgInfo.mipLevels;
 
@@ -339,7 +340,8 @@ VkResult EtaDevice::fillImage(AllocatedImage& image, void* data) {
 		copyRegion.imageSubresource.layerCount = 1;
 		copyRegion.imageExtent = image.imageExtent;
 
-		vkCmdCopyBufferToImage(cmd, stagingBuffer.buffer, image.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copyRegion);
+		vkCmdCopyBufferToImage(cmd, stagingBuffer.buffer, image.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1,
+							   &copyRegion);
 
 		etautil::makeReadable(cmd, image);
 	});
@@ -349,7 +351,8 @@ VkResult EtaDevice::fillImage(AllocatedImage& image, void* data) {
 
 VkResult EtaDevice::createFilledImage(AllocatedImage& image, void* data, VkExtent3D size, VkFormat format,
 									  VkImageUsageFlags usage) {
-	VK_RETURN(createImage(size, format, usage | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT, image, false));
+	VK_RETURN(createImage(size, format, usage | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
+						  image, false));
 	return fillImage(image, data);
 }
 
@@ -373,8 +376,8 @@ VkResult EtaDevice::createDrawImage(VkExtent2D extent, AllocatedImage& image) {
 }
 
 VkResult EtaDevice::createDepthImage(VkExtent2D extent, AllocatedImage& image) {
-	return createImage({extent.width, extent.height, 1}, VK_FORMAT_D32_SFLOAT, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
-					   image);
+	return createImage({extent.width, extent.height, 1}, VK_FORMAT_D32_SFLOAT,
+					   VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, image);
 }
 
 VkResult EtaDevice::createSampler(VkSampler* sampler, VkSamplerCreateInfo* info) {
@@ -405,7 +408,8 @@ VkResult EtaDevice::startFrame(glm::vec4 viewport, glm::vec4 clearColor) {
 	m_drawExtent.width = m_drawImage.imageExtent.width;
 	m_drawExtent.height = m_drawImage.imageExtent.height;
 
-	VkCommandBufferBeginInfo cmdBeginInfo = etainit::commandBufferBeginInfo(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+	VkCommandBufferBeginInfo cmdBeginInfo =
+		etainit::commandBufferBeginInfo(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
 	VK_RETURN(vkBeginCommandBuffer(currentCmd(), &cmdBeginInfo));
 
 	etautil::setViewport(currentCmd(), viewport);
@@ -416,7 +420,8 @@ VkResult EtaDevice::startFrame(glm::vec4 viewport, glm::vec4 clearColor) {
 		etainit::attachmentInfo(m_drawImage.imageView, nullptr, m_drawImage.currentLayout);
 
 	etautil::makeDepthWriteable(currentCmd(), m_depthImage);
-	VkRenderingAttachmentInfo depthAttachment = etainit::depthAttachmentInfo(m_depthImage.imageView, m_depthImage.currentLayout);
+	VkRenderingAttachmentInfo depthAttachment =
+		etainit::depthAttachmentInfo(m_depthImage.imageView, m_depthImage.currentLayout);
 
 	VkRenderingInfo renderInfo = etainit::renderingInfo(m_drawExtent, &colorAttachment, &depthAttachment);
 
@@ -427,13 +432,14 @@ VkResult EtaDevice::startFrame(glm::vec4 viewport, glm::vec4 clearColor) {
 
 VkResult EtaDevice::endFrame() {
 	vkCmdEndRendering(currentCmd());
-	etautil::copyImageToImage(currentCmd(), m_drawImage, m_swapchain.getCurrentImage(), m_drawExtent, m_swapchain.getExtent());
+	etautil::copyImageToImage(currentCmd(), m_drawImage, m_swapchain.getCurrentImage(), m_drawExtent,
+							  m_swapchain.getExtent());
 	etautil::makePresentable(currentCmd(), m_swapchain.getCurrentImage());
 
 	VK_RETURN(vkEndCommandBuffer(currentCmd()));
 
-	VkSemaphoreSubmitInfo waitInfo =
-		etainit::semaphoreSubmitInfo(VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT_KHR, getCurrentFrame()._swapchainSemaphore);
+	VkSemaphoreSubmitInfo waitInfo = etainit::semaphoreSubmitInfo(VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT_KHR,
+																  getCurrentFrame()._swapchainSemaphore);
 	VkSemaphoreSubmitInfo signalInfo =
 		etainit::semaphoreSubmitInfo(VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT, getCurrentFrame()._renderSemaphore);
 

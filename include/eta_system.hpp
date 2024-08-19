@@ -1,11 +1,8 @@
 #pragma once
 
-#include "eta_scene.hpp"
 #include "eta_engine.hpp"
 
 namespace eta {
-
-class EtaEngine;
 
 class EtaSystem {
 public:
@@ -22,4 +19,4 @@ protected:
 	EtaEngine& m_engine;
 };
 
-}; // namespace eta
+};	// namespace eta

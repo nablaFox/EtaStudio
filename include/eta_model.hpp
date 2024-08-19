@@ -12,7 +12,6 @@ class EtaMaterial;
 class EtaTextureAsset;
 
 class EtaModelAsset : public EtaAsset {
-
 public:
 	using EtaAsset::EtaAsset;
 
@@ -20,7 +19,7 @@ public:
 
 	void destroy() override {
 		m_device.destroyBuffer(m_metallicMaterialBuffer);
-		m_descriptorAllocator.destroyPoll(m_device);
+		// m_descriptorAllocator->destroyPoll(m_device); TEMP: handle when we have a proper allocator
 	}
 
 	void setModelPath(str path) { m_modelPath = path; }
@@ -33,6 +32,12 @@ public:
 		glm::mat4 localTransform;
 	};
 
+	struct ImageData {
+		int width, height, nrChannels;
+		int depth = 1;
+		void* data;
+	};
+
 private:
 	std::vector<std::string> m_meshes;
 	std::vector<std::string> m_materials;
@@ -40,9 +45,8 @@ private:
 
 	std::shared_ptr<Node> m_rootNode;
 
-	EtaDescriptorAllocator m_descriptorAllocator;
+	std::shared_ptr<EtaDescriptorAllocator> m_descriptorAllocator;
 	AllocatedBuffer m_metallicMaterialBuffer;
-	// AllocatedBuffer m_specularGlossinessMaterialBuffer;
 
 	std::filesystem::path m_modelPath;
 	std::string m_modelName;
@@ -52,10 +56,11 @@ private:
 	std::string getMaterialName(fastgltf::Material& material);
 	std::string getMeshName(fastgltf::Mesh& mesh);
 
-	static void loadImageDataFromURI(fastgltf::sources::URI& filePath, VkExtent3D* extent, void*& data);
-	static void loadImageDataFromVector(fastgltf::sources::Vector& vector, VkExtent3D* extent, void*& data);
-	static void loadImageDataFromBuffer(fastgltf::sources::BufferView& bufferView, fastgltf::Asset& asset, VkExtent3D* extent,
-										void*& data);
+	static void loadImageDataFromURI(fastgltf::sources::URI& filePath, ImageData* imageData);
+	static void loadImageDataFromVector(fastgltf::sources::Vector& vector, ImageData* imageData);
+	static void loadImageDataFromBuffer(fastgltf::sources::BufferView& bufferView,
+										fastgltf::Asset& asset,
+										ImageData* imageData);
 };
 
-}; // namespace eta
+};	// namespace eta

@@ -29,4 +29,4 @@ protected:
 	EtaAssetManager& m_manager;
 };
 
-}; // namespace eta
+};	// namespace eta

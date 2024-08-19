@@ -1,7 +1,6 @@
 #pragma once
 
-#include "rotation_system.hpp"
-#include "../include/eta_app.hpp"
+#include "demo_systems.hpp"
 
 using namespace eta;
 
@@ -16,22 +15,16 @@ public:
 	using EtaScene::EtaScene;
 
 	void setup() override {
-		auto violin = addEntity();
+		auto violin = addEntity({
+			.position = glm::vec3(0.0f, -2.5f, 3.0f),
+			.scale = glm::vec3(0.1f),
+		});
 
-		RenderComponent renderComponent{
-			.material = m_manager.getAsset<EtaMaterial>("violin_material_Body"),
-		};
-		addRenderComponent(violin, renderComponent);
+		addRenderComponent(violin, {.material = m_manager.getAsset<EtaMaterial>("violin_material_Body")});
 		addMeshComponent(violin, "violin_mesh_Violin_Body_0");
 
-		addComponent<RotationComponent>(violin, 0.08f, glm::vec3(0.0f, 1.0f, 0.0f));
-
-		getComponent<TransformComponent>(violin).scale = glm::vec3(0.1f);
-
-		// flip y axis
-		getComponent<TransformComponent>(violin).rotation = glm::angleAxis(glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-
 		addComponent<InputComponent>(violin);
+		addComponent<MovementComponent>(violin, 1.0f);
 
 		addDefaultCamera();
 	}

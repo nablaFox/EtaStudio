@@ -1,14 +1,24 @@
 #include "../include/eta_scene.hpp"
 #include "../include/eta_asset_manager.hpp"
 
+#include "../include/eta_default_components.hpp"
+
 using namespace eta;
+
+entt::entity EtaScene::addEntity(TransformComponent transform) {
+	auto entity = m_entities.create();
+	m_entities.emplace<TransformComponent>(entity, transform);
+	return entity;
+}
+
+entt::entity EtaScene::addEntity() { return addEntity(TransformComponent()); }
 
 void EtaScene::addDefaultCamera() {
 	auto entity = m_entities.create();
 
 	CameraComponent camera = {
-		.fov = 45.0f,
-		.aspect = 1.77f,
+		.fov = 50.0f,
+		.aspect = 1.77f, // TODO: get from window
 		.near = 0.1f,
 		.far = 1000.0f,
 		.enabled = true,
@@ -38,8 +48,9 @@ void EtaScene::addDefaultOrtographicCamera() {
 	addEntity<CameraComponent>(camera);
 }
 
-void EtaScene::addRenderComponent(entt::entity entity, RenderComponent& component) {
-	component.material = component.material ? component.material : m_manager.getAsset<EtaMaterial>("metallic_roughness");
+void EtaScene::addRenderComponent(entt::entity entity, RenderComponent component) {
+	component.material =
+		component.material ? component.material : m_manager.getAsset<EtaMaterial>("metallic_roughness");
 	m_entities.emplace<RenderComponent>(entity, component);
 }
 
@@ -51,4 +62,21 @@ void EtaScene::addRenderComponent(entt::entity entity) {
 void EtaScene::addMeshComponent(entt::entity entity, str meshName) {
 	auto mesh = m_manager.getAsset<EtaMeshAsset>(meshName);
 	m_entities.emplace<MeshComponent>(entity, mesh);
+}
+
+entt::entity EtaScene::getActiveCamera() {
+	if (m_activeCamera != entt::null)
+		return m_activeCamera;
+
+	auto view = m_entities.view<CameraComponent>();
+
+	for (auto entity : view) {
+		auto camera = view.get<CameraComponent>(entity);
+		if (camera.enabled) {
+			m_activeCamera = entity;
+			return entity;
+		}
+	}
+
+	return entt::null;
 }

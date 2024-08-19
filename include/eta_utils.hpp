@@ -1,7 +1,5 @@
 #pragma once
 
-#include "eta_pch.hpp"
-
 namespace etautil {
 
 struct DeletionQueue {
@@ -23,4 +21,4 @@ inline void hashCombine(size_t& seed, const T& v) {
 	seed ^= hasher(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
 }
 
-}; // namespace etautil
+};	// namespace etautil

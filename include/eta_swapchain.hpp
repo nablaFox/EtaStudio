@@ -33,4 +33,4 @@ private:
 	uint32_t m_currentImage;
 };
 
-} // namespace eta
+}  // namespace eta

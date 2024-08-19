@@ -4,9 +4,12 @@
 
 #include "eta_pch.hpp"
 #include "eta_asset.hpp"
-#include "eta_default_components.hpp"
 
 namespace eta {
+
+struct TransformComponent;
+struct RenderComponent;
+struct CameraComponent;
 
 class EtaScene : public EtaAsset {
 public:
@@ -22,11 +25,9 @@ public:
 		// TODO: here set the initial viewport
 	}
 
-	entt::entity addEntity() {
-		auto entity = m_entities.create();
-		m_entities.emplace<TransformComponent>(entity, glm::vec3(0), glm::quat(1, 0, 0, 0), glm::vec3(1.0f));
-		return entity;
-	}
+	entt::entity addEntity(TransformComponent transform);
+
+	entt::entity addEntity();
 
 	template <typename T, typename... Args>
 	entt::entity addEntity(Args&&... args) {
@@ -45,6 +46,12 @@ public:
 		return m_entities.get<T>(entity);
 	}
 
+	template <typename T>
+	entt::entity getFirstWith() {
+		auto view = m_entities.view<T>();
+		return view.front();
+	}
+
 	template <typename... Components>
 	auto getEntities() {
 		auto entities = m_entities.view<Components...>();
@@ -54,41 +61,13 @@ public:
 	void removeEntity(entt::entity entity) { m_entities.destroy(entity); }
 
 	void addRenderComponent(entt::entity);
-	void addRenderComponent(entt::entity entity, RenderComponent& component);
+	void addRenderComponent(entt::entity entity, RenderComponent component);
 	void addMeshComponent(entt::entity entity, str meshName);
 
 	void addDefaultCamera();
 	void addDefaultOrtographicCamera();
 
-	CameraComponent* getActiveCamera() {
-		if (m_activeCamera != entt::null)
-			return &m_entities.get<CameraComponent>(m_activeCamera);
-
-		auto view = m_entities.view<CameraComponent>();
-		for (auto entity : view) {
-			auto& camera = view.get<CameraComponent>(entity);
-			if (camera.enabled) {
-				m_activeCamera = entity;
-				return &camera;
-			}
-		}
-
-		return nullptr;
-	}
-
-	TransformComponent* getActiveCameraTransform() {
-		if (m_activeCamera != entt::null)
-			return &m_entities.get<TransformComponent>(m_activeCamera);
-
-		auto view = m_entities.view<TransformComponent>();
-		for (auto entity : view) {
-			if (entity == m_activeCamera) {
-				return &view.get<TransformComponent>(entity);
-			}
-		}
-
-		return nullptr;
-	}
+	entt::entity getActiveCamera();
 
 	SceneSettings& settings() { return m_sceneSettings; }
 
@@ -99,4 +78,4 @@ private:
 	SceneSettings m_sceneSettings;
 };
 
-}; // namespace eta
+};	// namespace eta

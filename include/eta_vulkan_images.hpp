@@ -32,7 +32,11 @@ inline void transitionImage(VkCommandBuffer cmd, VkImage image, VkImageLayout cu
 	vkCmdPipelineBarrier2(cmd, &depInfo);
 }
 
-inline void copyImageToImage(VkCommandBuffer cmd, VkImage source, VkImage destination, VkExtent2D srcSize, VkExtent2D dstSize) {
+inline void copyImageToImage(VkCommandBuffer cmd,
+							 VkImage source,
+							 VkImage destination,
+							 VkExtent2D srcSize,
+							 VkExtent2D dstSize) {
 	VkImageBlit2 blitRegion{.sType = VK_STRUCTURE_TYPE_IMAGE_BLIT_2, .pNext = nullptr};
 
 	blitRegion.srcOffsets[1].x = srcSize.width;
@@ -100,7 +104,11 @@ inline void makeCopyable(VkCommandBuffer cmd, VulkanImage& image) {
 	image.currentLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
 }
 
-inline void copyImageToImage(VkCommandBuffer cmd, VulkanImage& src, VulkanImage& dst, VkExtent2D srcSize, VkExtent2D dstSize) {
+inline void copyImageToImage(VkCommandBuffer cmd,
+							 VulkanImage& src,
+							 VulkanImage& dst,
+							 VkExtent2D srcSize,
+							 VkExtent2D dstSize) {
 	makeTransferable(cmd, src);
 	makeCopyable(cmd, dst);
 
@@ -130,18 +138,22 @@ inline void setScissor(VkCommandBuffer cmd, VkExtent2D extent, int x = 0, int y 
 	vkCmdSetScissor(cmd, 0, 1, &scissor);
 }
 
-inline void setClearColor(glm::vec4 color, VkAttachmentLoadOp loadOp, VkAttachmentStoreOp storeOp,
+inline void setClearColor(glm::vec4 color,
+						  VkAttachmentLoadOp loadOp,
+						  VkAttachmentStoreOp storeOp,
 						  VkRenderingAttachmentInfo* attachment) {
 	attachment->loadOp = loadOp;
 	attachment->storeOp = storeOp;
 	attachment->clearValue = {{color.r, color.g, color.b, color.a}};
 }
 
-inline void setClearDepth(VkClearDepthStencilValue clearValue, VkAttachmentLoadOp loadOp, VkAttachmentStoreOp storeOp,
+inline void setClearDepth(VkClearDepthStencilValue clearValue,
+						  VkAttachmentLoadOp loadOp,
+						  VkAttachmentStoreOp storeOp,
 						  VkRenderingAttachmentInfo* attachment) {
 	attachment->loadOp = loadOp;
 	attachment->storeOp = storeOp;
 	attachment->clearValue = {1.0f, 0};
 }
 
-} // namespace etautil
+}  // namespace etautil

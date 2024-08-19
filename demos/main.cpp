@@ -1,6 +1,6 @@
 #include "../include/eta_app.hpp"
 #include "violin.hpp"
-#include "cube.hpp"
+#include "geometry.hpp"
 #include "pendulum.hpp"
 
 using namespace eta;
@@ -13,14 +13,15 @@ class DemoApplication : public EtaApp {
 
 		registerAsset<PyramidMesh>("PyramidMesh");
 		registerAsset<CubeMesh>("CubeMesh");
-		registerAsset<CubeScene>("CubeScene");
+		registerAsset<GeometryScene>("GeometryScene");
 
 		registerAsset<ViolinModel>("ViolinModel");
 		registerAsset<ViolinScene>("ViolinScene");
 
 		registerSystem<RotationSystem>();
+		registerSystem<MovementSystem>();
 
-		switchScene("CubeScene");
+		switchScene("GeometryScene");
 	};
 };
 
