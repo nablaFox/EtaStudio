@@ -101,15 +101,24 @@ void EtaGraphicsPipeline::disableMultisampling() {
 	m_multisampling.alphaToOneEnable = VK_FALSE;
 }
 
+void EtaGraphicsPipeline::setMultisampling(VkSampleCountFlagBits samples) {
+	m_multisampling.sampleShadingEnable = VK_FALSE;
+	m_multisampling.rasterizationSamples = samples;
+	m_multisampling.minSampleShading = 1.0f;
+	m_multisampling.pSampleMask = nullptr;
+	m_multisampling.alphaToCoverageEnable = VK_FALSE;
+	m_multisampling.alphaToOneEnable = VK_FALSE;
+}
+
 void EtaGraphicsPipeline::disableBlending() {
 	m_colorBlendAttachment.colorWriteMask =
 		VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
 	m_colorBlendAttachment.blendEnable = VK_FALSE;
 }
 
-void EtaGraphicsPipeline::enableBlendingAdditive() {}
+void EtaGraphicsPipeline::setBlendingAdditive() {}
 
-void EtaGraphicsPipeline::enableBlendingAlphablend() {}
+void EtaGraphicsPipeline::setBlendingAlphablend() {}
 
 void EtaGraphicsPipeline::setColorAttachmentFormat(VkFormat format) {
 	m_colorAttachmentFormat = format;
@@ -117,9 +126,11 @@ void EtaGraphicsPipeline::setColorAttachmentFormat(VkFormat format) {
 	m_renderInfo.pColorAttachmentFormats = &m_colorAttachmentFormat;
 }
 
-void EtaGraphicsPipeline::setDepthFormat(VkFormat format) { m_renderInfo.depthAttachmentFormat = format; }
+void EtaGraphicsPipeline::setDepthFormat(VkFormat format) {
+	m_renderInfo.depthAttachmentFormat = format;
+}
 
-void EtaGraphicsPipeline::enableDepthTest(VkCompareOp op) {
+void EtaGraphicsPipeline::setDepthTest(VkCompareOp op) {
 	m_depthStencil.depthTestEnable = VK_TRUE;
 	m_depthStencil.depthWriteEnable = VK_TRUE;
 	m_depthStencil.depthCompareOp = op;

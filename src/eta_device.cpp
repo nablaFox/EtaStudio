@@ -91,13 +91,39 @@ VkResult EtaDevice::init(EtaWindow& window) {
 
 	m_swapchain.init(window.getExtent(), VK_FORMAT_B8G8R8A8_UNORM);
 
-	VK_RETURN(createDrawImage(window.getExtent(), m_drawImage));
+	// get max number of samples
+	VkPhysicalDeviceProperties properties;
+	vkGetPhysicalDeviceProperties(m_chosenGPU, &properties);
+
+	VkSampleCountFlags counts =
+		properties.limits.framebufferColorSampleCounts & properties.limits.framebufferDepthSampleCounts;
+
+	if (counts & VK_SAMPLE_COUNT_64_BIT)
+		m_msaaSamples = VK_SAMPLE_COUNT_64_BIT;
+	else if (counts & VK_SAMPLE_COUNT_32_BIT)
+		m_msaaSamples = VK_SAMPLE_COUNT_32_BIT;
+	else if (counts & VK_SAMPLE_COUNT_16_BIT)
+		m_msaaSamples = VK_SAMPLE_COUNT_16_BIT;
+	else if (counts & VK_SAMPLE_COUNT_8_BIT)
+		m_msaaSamples = VK_SAMPLE_COUNT_8_BIT;
+	else if (counts & VK_SAMPLE_COUNT_4_BIT)
+		m_msaaSamples = VK_SAMPLE_COUNT_4_BIT;
+	else if (counts & VK_SAMPLE_COUNT_2_BIT)
+		m_msaaSamples = VK_SAMPLE_COUNT_2_BIT;
+	else
+		m_msaaSamples = VK_SAMPLE_COUNT_1_BIT;
+
+	VK_RETURN(createDrawImage(window.getExtent(), m_drawImage, m_msaaSamples));
+
+	VK_RETURN(createDrawImage(window.getExtent(), m_resolveImage, VK_SAMPLE_COUNT_1_BIT));
+
 	VK_RETURN(createDepthImage(window.getExtent(), m_depthImage));
 
 	m_deletionQueue.push_function([this] {
 		m_globalDescriptorAllocator->resetDescriptorPool(*this);
 		m_globalDescriptorAllocator->destroyPoll(*this);
 		destroyImage(m_drawImage);
+		destroyImage(m_resolveImage);
 		destroyImage(m_depthImage);
 		vmaDestroyAllocator(m_allocator);
 	});
@@ -178,7 +204,9 @@ VkResult EtaDevice::createUBO(size_t allocSize, AllocatedBuffer& uboBuffer) {
 	return createBuffer(allocSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU, uboBuffer);
 }
 
-VkResult EtaDevice::createBuffer(size_t allocSize, VkBufferUsageFlags usage, VmaMemoryUsage memoryUsage,
+VkResult EtaDevice::createBuffer(size_t allocSize,
+								 VkBufferUsageFlags usage,
+								 VmaMemoryUsage memoryUsage,
 								 AllocatedBuffer& buffer) {
 	VkBufferCreateInfo bufferInfo = {
 		.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
@@ -291,12 +319,16 @@ VkResult EtaDevice::immediateSubmit(std::function<void(VkCommandBuffer cmd)>&& f
 	return VK_SUCCESS;
 }
 
-VkResult EtaDevice::createImage(VkExtent3D size, VkFormat format, VkImageUsageFlags usage, AllocatedImage& handle,
+VkResult EtaDevice::createImage(VkExtent3D size,
+								VkFormat format,
+								VkImageUsageFlags usage,
+								AllocatedImage& handle,
+								VkSampleCountFlagBits numSamples,
 								bool mipmapped) {
 	handle.imageFormat = format;
 	handle.imageExtent = size;
 
-	VkImageCreateInfo imgInfo = etainit::imageCreateInfo(format, usage, size);
+	VkImageCreateInfo imgInfo = etainit::imageCreateInfo(format, usage, size, numSamples);
 
 	if (mipmapped)
 		imgInfo.mipLevels = static_cast<uint32_t>(std::floor(std::log2(std::max(size.width, size.height)))) + 1;
@@ -349,14 +381,17 @@ VkResult EtaDevice::fillImage(AllocatedImage& image, void* data) {
 	return destroyBuffer(stagingBuffer);
 }
 
-VkResult EtaDevice::createFilledImage(AllocatedImage& image, void* data, VkExtent3D size, VkFormat format,
+VkResult EtaDevice::createFilledImage(AllocatedImage& image,
+									  void* data,
+									  VkExtent3D size,
+									  VkFormat format,
 									  VkImageUsageFlags usage) {
-	VK_RETURN(createImage(size, format, usage | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
-						  image, false));
+	VK_RETURN(
+		createImage(size, format, usage | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT, image));
 	return fillImage(image, data);
 }
 
-VkResult EtaDevice::createDrawImage(VkExtent2D extent, AllocatedImage& image) {
+VkResult EtaDevice::createDrawImage(VkExtent2D extent, AllocatedImage& image, VkSampleCountFlagBits numSamples) {
 	VkExtent3D drawImageExtent = {
 		extent.width,
 		extent.height,
@@ -372,12 +407,12 @@ VkResult EtaDevice::createDrawImage(VkExtent2D extent, AllocatedImage& image) {
 	drawImageUsages |= VK_IMAGE_USAGE_STORAGE_BIT;
 	drawImageUsages |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-	return createImage(drawImageExtent, image.imageFormat, drawImageUsages, image, false);
+	return createImage(drawImageExtent, image.imageFormat, drawImageUsages, image, numSamples);
 }
 
 VkResult EtaDevice::createDepthImage(VkExtent2D extent, AllocatedImage& image) {
 	return createImage({extent.width, extent.height, 1}, VK_FORMAT_D32_SFLOAT,
-					   VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, image);
+					   VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, image, m_msaaSamples);
 }
 
 VkResult EtaDevice::createSampler(VkSampler* sampler, VkSamplerCreateInfo* info) {
@@ -432,8 +467,11 @@ VkResult EtaDevice::startFrame(glm::vec4 viewport, glm::vec4 clearColor) {
 
 VkResult EtaDevice::endFrame() {
 	vkCmdEndRendering(currentCmd());
-	etautil::copyImageToImage(currentCmd(), m_drawImage, m_swapchain.getCurrentImage(), m_drawExtent,
-							  m_swapchain.getExtent());
+
+	etautil::resolveMultisampledImage(currentCmd(), m_drawImage, m_resolveImage, m_drawExtent);
+
+	etautil::copyImageToImage(currentCmd(), m_resolveImage, m_swapchain.getCurrentImage());
+
 	etautil::makePresentable(currentCmd(), m_swapchain.getCurrentImage());
 
 	VK_RETURN(vkEndCommandBuffer(currentCmd()));

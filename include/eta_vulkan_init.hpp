@@ -85,7 +85,10 @@ inline VkSemaphoreSubmitInfo semaphoreSubmitInfo(VkPipelineStageFlags2 stageMask
 	return info;
 }
 
-inline VkImageCreateInfo imageCreateInfo(VkFormat format, VkImageUsageFlags usageFlags, VkExtent3D extent) {
+inline VkImageCreateInfo imageCreateInfo(VkFormat format,
+										 VkImageUsageFlags usageFlags,
+										 VkExtent3D extent,
+										 VkSampleCountFlagBits samples = VK_SAMPLE_COUNT_1_BIT) {
 	VkImageCreateInfo info = {};
 	info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
 	info.pNext = nullptr;
@@ -98,7 +101,7 @@ inline VkImageCreateInfo imageCreateInfo(VkFormat format, VkImageUsageFlags usag
 	info.mipLevels = 1;
 	info.arrayLayers = 1;
 
-	info.samples = VK_SAMPLE_COUNT_1_BIT;
+	info.samples = samples;
 
 	// optimal tiling, which means the image is stored on the best gpu format
 	info.tiling = VK_IMAGE_TILING_OPTIMAL;

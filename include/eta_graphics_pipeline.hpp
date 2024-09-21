@@ -16,17 +16,18 @@ public:
 	void setPolygonMode(VkPolygonMode mode);
 	void setCullMode(VkCullModeFlags mode, VkFrontFace frontFace);
 
+	void setColorAttachmentFormat(VkFormat format);
+	void setDepthFormat(VkFormat format);
+
+	void setDepthTest(VkCompareOp op = VK_COMPARE_OP_GREATER_OR_EQUAL);
+	void disableDepthTest();
+
+	void setMultisampling(VkSampleCountFlagBits samples);
 	void disableMultisampling();
 
 	void disableBlending();
-	void enableBlendingAdditive();
-	void enableBlendingAlphablend();
-
-	void setColorAttachmentFormat(VkFormat format);
-
-	void setDepthFormat(VkFormat format);
-	void enableDepthTest(VkCompareOp op = VK_COMPARE_OP_GREATER_OR_EQUAL);
-	void disableDepthTest();
+	void setBlendingAdditive();
+	void setBlendingAlphablend();
 
 private:
 	void setDescriptorSetLayout(const EtaDescriptorLayout& layout);
@@ -42,4 +43,4 @@ private:
 	VkPipelineRenderingCreateInfo m_renderInfo;
 };
 
-} // namespace eta
+}  // namespace eta

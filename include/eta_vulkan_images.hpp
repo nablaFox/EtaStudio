@@ -35,8 +35,8 @@ inline void transitionImage(VkCommandBuffer cmd, VkImage image, VkImageLayout cu
 inline void copyImageToImage(VkCommandBuffer cmd,
 							 VkImage source,
 							 VkImage destination,
-							 VkExtent2D srcSize,
-							 VkExtent2D dstSize) {
+							 VkExtent3D srcSize,
+							 VkExtent3D dstSize) {
 	VkImageBlit2 blitRegion{.sType = VK_STRUCTURE_TYPE_IMAGE_BLIT_2, .pNext = nullptr};
 
 	blitRegion.srcOffsets[1].x = srcSize.width;
@@ -104,15 +104,50 @@ inline void makeCopyable(VkCommandBuffer cmd, VulkanImage& image) {
 	image.currentLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
 }
 
-inline void copyImageToImage(VkCommandBuffer cmd,
-							 VulkanImage& src,
-							 VulkanImage& dst,
-							 VkExtent2D srcSize,
-							 VkExtent2D dstSize) {
+inline void copyImageToImage(VkCommandBuffer cmd, VulkanImage& src, VulkanImage& dst) {
 	makeTransferable(cmd, src);
 	makeCopyable(cmd, dst);
 
-	copyImageToImage(cmd, src.image, dst.image, srcSize, dstSize);
+	copyImageToImage(cmd, src.image, dst.image, src.imageExtent, dst.imageExtent);
+}
+
+inline void resolveMultisampledImage(VkCommandBuffer cmd, VulkanImage& msaSrc, VulkanImage& resDst, VkExtent2D extent) {
+	makeTransferable(cmd, msaSrc);
+
+	makeCopyable(cmd, resDst);
+
+	VkImageResolve2 resolveRegion{
+		.sType = VK_STRUCTURE_TYPE_IMAGE_RESOLVE_2,
+		.pNext = nullptr,
+		.extent = {.width = extent.width, .height = extent.height, .depth = 1},
+	};
+
+	resolveRegion.srcSubresource = {
+		.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+		.mipLevel = 0,
+		.baseArrayLayer = 0,
+		.layerCount = 1,
+	};
+
+	resolveRegion.dstSubresource = {
+		.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+		.mipLevel = 0,
+		.baseArrayLayer = 0,
+		.layerCount = 1,
+	};
+
+	VkResolveImageInfo2 resolveInfo{
+		.sType = VK_STRUCTURE_TYPE_RESOLVE_IMAGE_INFO_2,
+		.pNext = nullptr,
+		.srcImage = msaSrc.image,
+		.srcImageLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+		.dstImage = resDst.image,
+		.dstImageLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+		.regionCount = 1,
+		.pRegions = &resolveRegion,
+	};
+
+	vkCmdResolveImage2(cmd, &resolveInfo);
 }
 
 inline void setViewport(VkCommandBuffer cmd, glm::vec4 view, float minDepth = 0.0f, float maxDepth = 1.0f) {

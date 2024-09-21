@@ -73,7 +73,9 @@ public:
 	void waitIdle() { vkDeviceWaitIdle(m_device); }
 
 	template <typename... Bindings>
-	void bindResources(GPUMeshData& meshData, glm::mat4 modelMatrix, GraphicsPipelineConfigs& pipelineConfigs,
+	void bindResources(GPUMeshData& meshData,
+					   glm::mat4 modelMatrix,
+					   GraphicsPipelineConfigs& pipelineConfigs,
 					   Bindings&&... bindings) {
 		auto cmd = currentCmd();
 
@@ -98,7 +100,10 @@ public:
 		vkCmdBindIndexBuffer(cmd, meshData.indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT32);
 	}
 
-	void drawIndexed(size_t indexCount, size_t instanceCount, size_t firstIndex, size_t vertexOffset,
+	void drawIndexed(size_t indexCount,
+					 size_t instanceCount,
+					 size_t firstIndex,
+					 size_t vertexOffset,
 					 size_t firstInstance) {
 		auto cmd = currentCmd();
 		vkCmdDrawIndexed(cmd, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
@@ -106,7 +111,7 @@ public:
 
 	template <typename... Bindings>
 	std::shared_ptr<EtaPipeline> getGraphicsPipeline(GraphicsPipelineConfigs& configs, Bindings&&... bindings) {
-		size_t bitmask = calculateHash(configs, bindings...); // TODO: avoid recalculating hash every time
+		size_t bitmask = calculateHash(configs, bindings...);  // TODO: avoid recalculating hash every time
 		if (m_pipelines.find(bitmask) != m_pipelines.end())
 			return m_pipelines[bitmask];
 
@@ -122,11 +127,11 @@ public:
 		newPipeline->setPolygonMode(configs.polygonMode);
 		newPipeline->setShaders(configs.vertexShader, configs.fragmentShader);
 		newPipeline->setCullMode(configs.cullMode, configs.frontFace);
-		newPipeline->disableMultisampling(); // temp
-		newPipeline->disableBlending();		 // temp
+		newPipeline->disableBlending();	 // temp
 
 		// default
-		newPipeline->enableDepthTest();
+		newPipeline->setMultisampling(m_msaaSamples);
+		newPipeline->setDepthTest();
 		newPipeline->setColorAttachmentFormat(m_drawImage.imageFormat);
 		newPipeline->setDepthFormat(m_depthImage.imageFormat);
 		newPipeline->setPushConstantRange(m_graphicsPushConstantRange);
@@ -145,7 +150,9 @@ public:
 	}
 
 public:
-	VkResult createBuffer(size_t allocSize, VkBufferUsageFlags usage, VmaMemoryUsage memoryUsage,
+	VkResult createBuffer(size_t allocSize,
+						  VkBufferUsageFlags usage,
+						  VmaMemoryUsage memoryUsage,
 						  AllocatedBuffer& buffer);
 	VkResult createUBO(size_t allocSize, AllocatedBuffer& uboBuffer);
 	VkResult fillBuffer(AllocatedBuffer& buffer, void* data, size_t size, size_t offset);
@@ -156,17 +163,26 @@ public:
 	VkResult updateMesh(std::span<Vertex> vertices, std::span<Index> indices, GPUMeshData& meshData);
 	VkResult destroyMesh(GPUMeshData& meshData);
 
-	VkResult createImage(VkExtent3D size, VkFormat format, VkImageUsageFlags usage, AllocatedImage& handle,
+	VkResult createImage(VkExtent3D size,
+						 VkFormat format,
+						 VkImageUsageFlags usage,
+						 AllocatedImage& handle,
+						 VkSampleCountFlagBits numSamples = VK_SAMPLE_COUNT_1_BIT,
 						 bool mipmapped = false);
 	VkResult createSampler(VkSampler* sampler, VkSamplerCreateInfo* info);
 	VkResult fillImage(AllocatedImage& image, void* data);
-	VkResult createFilledImage(AllocatedImage& image, void* data, VkExtent3D size, VkFormat format,
+	VkResult createFilledImage(AllocatedImage& image,
+							   void* data,
+							   VkExtent3D size,
+							   VkFormat format,
 							   VkImageUsageFlags usage);
 	VkResult destroySampler(VkSampler* sampler);
 	VkResult destroyImage(AllocatedImage& handle);
 	VkResult destroySampler(VkSampler& sampler);
 
-	VkResult createDrawImage(VkExtent2D size, AllocatedImage& handle);
+	VkResult createDrawImage(VkExtent2D size,
+							 AllocatedImage& handle,
+							 VkSampleCountFlagBits numSamples = VK_SAMPLE_COUNT_1_BIT);
 	VkResult createDepthImage(VkExtent2D size, AllocatedImage& handle);
 
 	VkResult createCommandPool(VkCommandPool* pool, VkCommandPoolCreateFlags flags = 0);
@@ -222,8 +238,11 @@ private:
 	FrameData m_frames[MAX_FRAMES_IN_FLIGHT];
 	size_t m_currentFrame = 0;
 
+	VkSampleCountFlagBits m_msaaSamples = VK_SAMPLE_COUNT_1_BIT;
+
 	AllocatedImage m_drawImage;
+	AllocatedImage m_resolveImage;
 	AllocatedImage m_depthImage;
 };
 
-}; // namespace eta
+};	// namespace eta

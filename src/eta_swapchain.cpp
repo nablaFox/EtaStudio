@@ -31,7 +31,11 @@ void EtaSwapchain::init(VkExtent2D extent, VkFormat format) {
 	auto views = vkbSwapchain.get_image_views().value();
 
 	for (uint32_t i = 0; i < images.size(); ++i) {
-		VulkanImage image{.image = images[i], .imageView = views[i]};
+		VulkanImage image{
+			.imageExtent = {m_swapchainExtent.width, m_swapchainExtent.height, 1},
+			.image = images[i],
+			.imageView = views[i],
+		};
 		m_swapchainImages.push_back(std::move(image));
 	}
 }

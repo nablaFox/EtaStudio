@@ -39,13 +39,13 @@ struct Vertex {
 
 struct VulkanImage {
 	VkImageLayout currentLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	VkExtent3D imageExtent;
 	VkImage image;
 	VkImageView imageView;
 };
 
 struct AllocatedImage : VulkanImage {
 	VmaAllocation allocation;
-	VkExtent3D imageExtent;
 	VkFormat imageFormat;
 };
 
