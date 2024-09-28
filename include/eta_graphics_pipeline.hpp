@@ -19,7 +19,7 @@ public:
 	void setColorAttachmentFormat(VkFormat format);
 	void setDepthFormat(VkFormat format);
 
-	void setDepthTest(VkCompareOp op = VK_COMPARE_OP_GREATER_OR_EQUAL);
+	void setDepthTest(VkCompareOp op = VK_COMPARE_OP_LESS);
 	void disableDepthTest();
 
 	void setMultisampling(VkSampleCountFlagBits samples);

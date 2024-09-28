@@ -75,104 +75,38 @@ loadIntoScene("gltlf loader asset name"):
 
 the assets will be relative to that scene. They can be reused because the data will be stored, and also because once it is initialized we can reference all the loaded assets.
 
-what about the asset manager? The asset manager keeps track of all the created assets. It stores shared_ptr to them.
+[Transformations graph]
 
-On rendering:
-- use MeshComponent to get the uploaded data of the mesh
-- if materialChanged use the descriptor set to update the ubo.
-- if texturesChanged use ds to update the two of them with the new texture data
-- check if pipeline is valid. If not create new one and update pipeline field
+- abbiamo due transform: relative position (in riferimento alla gerarchia) e absolute position (in riferimento al world)
 
-engine:
-public:
-- init(): init renderer, register default systems, register default scene with a camera and a light
-- run(): 
-m_renderer.beginFrame()
-systemMamager.updateAll()
-m_renderer.endFrame()
-- destroy()
+- dentro model_asset non possiamo creare entità quindi abbiamo bisogno di una struttura intermedia. La trasformazione in entity si può fare così:
 
-protected:
-- createScene(name): initial is reserved
-- switchScene(name)
-- currentScene()
-- destroyScene(name): initial is reserved
-- createTexture(): combine creation and initialization
-- createMesh(name): return m_assetManager.createAsset<Mesh>(name)
-- createglTF()
-- initMesh()
-- initTexture()
-- initglTF()
-- loadglTFIntoScene(gltfName, sceneName)
-- registerSystem<T>(name): m_systemManager.registerSystem<T>(name, this)
-- registerAsset<T>(name): shared T asset =   m_assetManager.createAsset<Mesh>(name)
-asset->setup()
-based on T call initAssetX
-- registerScene<T>(name)
-- globalSceneData
-private:
-- m_sceneManager
-- m_assetManager
-- m_systemManager
-- m_renderer 
+loadModel("model_name") --> it will create the graph of entities. What If i want to access one in particular? 
+	ritorna un puntatore ad una hashmap del tipo: nome node --> puntatore node 
+
+TransformComponent {
+	// relative to parent
+	position
+	rotation
+	scale
+
+	[private]
+	localMatrix
+	worldMatrix
+	needsUpdate
+}
+
+X.worldMatrix = Parent.worldMatrix * X.localMatrix (recursively)
+
+- ogni scena contiene il così detto scene graph
+	- un nodo è una entità
+	- ogni volta che aggiungiamo una entity aggiungiamo un nodo
+	- abbiamo il metodo setParent(entityChild, entityParent) --> il nodo entityChild ha come gentiore entityParent e entityParent ha come figlio entityChild
+	- ogni volta che aggiorniamo un transform dobbiamo settare needsUpdate
 
 
-application : engine 
-- init(): father.init(), setup(), systems.awakeAll()
-- virtual setup()
+- per il rendering:
+	- prima di renderizzare fai currScene.updateWorldTransform()
+	- renderizza normalmente come hai fatto finora
+	
 
-demoApp : application
-- setup() ...
-
-demoApp app;
-app.init()
-app.run()
-app.destroy() 
-
-files:
-
-asset
-mesh_asset
-texture_asset
-asset_manager
-
-scene
-scene_manager
-
-default_components
-
-default_pipelines
-
-system:
-protected:
-- getEntities(): m_engine.currentScene().getEntities()
-- update()
-- awake()
-- sleep()
-- m_engine&
-
-(allocate systems on the stack since they last till the end of the program once registered)
-system_manager:
-public:
-- awakeAll()
-- updateAll()
-- sleepAll()
-- registerSystem<T>(name, m_engine): systems.push_back(T newSystem(m_engine))
-- std::vector<VkeSystem> systems;
-
-renderer:
-FrameData;
-public:
-- init(): setup Vulkan
-- UploadMesh()
-
-private:
-- m_descriptorSetAllocator (growable)
-- m_globalSceneDataDescriptor
-- m_swapchain
-- m_pipelinesManager
-- m_device
-
-rendering system:
-public:
-- we have access to m_engine.renderer

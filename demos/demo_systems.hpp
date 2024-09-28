@@ -22,20 +22,16 @@ public:
 		auto& curr = currentScene();
 
 		curr.getEntities<TransformComponent, RotationComponent>().each(
-			[this, deltaTime](auto entity, TransformComponent& transform, RotationComponent& rot) {
-				transform.rotation = glm::rotate(transform.rotation, rot.rotationSpeed * deltaTime, rot.rotationAxis);
+			[this, deltaTime, &curr](auto entity, TransformComponent& transform, RotationComponent& rot) {
+				curr.setRotation(entity,
+								 glm::rotate(transform.rotation, rot.rotationSpeed * deltaTime, rot.rotationAxis));
 			});
 
 		auto input = curr.getFirstWith<InputComponent>();
-		auto camera = currentScene().getActiveCamera();
-
-		if (camera == entt::null)
-			return;
 
 		if (input == entt::null)
 			return;
 
-		auto& cameraTransform = curr.getComponent<TransformComponent>(camera);
 		auto& inputComponent = curr.getComponent<InputComponent>(input);
 
 		if (inputComponent.keys[GLFW_KEY_1]) {
@@ -74,30 +70,33 @@ public:
 		auto& inputComponent = curr.getComponent<InputComponent>(input);
 		auto& movementComponent = curr.getComponent<MovementComponent>(toMove);
 
-		auto& transform = curr.getComponent<TransformComponent>(toMove);
+		glm::vec3 move = glm::vec3(0.0f);
 
 		if (inputComponent.keys[GLFW_KEY_S]) {
-			transform.position.y -= deltaTime * movementComponent.speed;
+			move.y -= deltaTime * movementComponent.speed;
 		}
 
 		if (inputComponent.keys[GLFW_KEY_W]) {
-			transform.position.y += deltaTime * movementComponent.speed;
+			move.y += deltaTime * movementComponent.speed;
 		}
 
 		if (inputComponent.keys[GLFW_KEY_A]) {
-			transform.position.x -= deltaTime * movementComponent.speed;
+			move.x -= deltaTime * movementComponent.speed;
 		}
 
 		if (inputComponent.keys[GLFW_KEY_D]) {
-			transform.position.x += deltaTime * movementComponent.speed;
+			move.x += deltaTime * movementComponent.speed;
 		}
 
 		if (inputComponent.keys[GLFW_KEY_Q]) {
-			transform.position.z += deltaTime * movementComponent.speed;
+			move.z += deltaTime * movementComponent.speed;
 		}
 
 		if (inputComponent.keys[GLFW_KEY_E]) {
-			transform.position.z -= deltaTime * movementComponent.speed;
+			move.z -= deltaTime * movementComponent.speed;
 		}
+
+		if (move != glm::vec3(0.0f))
+			curr.updatePosition(toMove, move);
 	}
 };

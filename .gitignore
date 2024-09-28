@@ -64,9 +64,6 @@ dkms.conf
 # shaders
 *.spv
 
-# TODO
-TODO
-
 # CMake
 
 CMakeFiles

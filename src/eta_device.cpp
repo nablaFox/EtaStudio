@@ -26,18 +26,22 @@ VkResult EtaDevice::init(EtaWindow& window) {
 	// physical and logical devices
 	VK_RETURN(glfwCreateWindowSurface(m_vkInstance, window.getWindow(), nullptr, &m_surface));
 
-	VkPhysicalDeviceVulkan13Features features{};
-	features.dynamicRendering = true;
-	features.synchronization2 = true;
+	VkPhysicalDeviceVulkan13Features features13{};
+	features13.dynamicRendering = true;
+	features13.synchronization2 = true;
 
 	VkPhysicalDeviceVulkan12Features features12{};
 	features12.bufferDeviceAddress = true;
 	features12.descriptorIndexing = true;
 
+	VkPhysicalDeviceFeatures features{};
+	features.shaderStorageImageMultisample = true;
+
 	vkb::PhysicalDeviceSelector selector{vkbInst};
 	vkb::PhysicalDevice phyisicalDevice = selector.set_minimum_version(1, 3)
-											  .set_required_features_13(features)
+											  .set_required_features_13(features13)
 											  .set_required_features_12(features12)
+											  .set_required_features(features)
 											  .set_surface(m_surface)
 											  .select()
 											  .value();

@@ -1,0 +1,25 @@
+features:
+- models loading and transformations tree
+- first person working camera (explore a city model)
+- lights
+- shadows
+- default materials (transparent and others)
+- 2D rendering
+- computed shaders (particle simulations)
+- fonts
+- animation system (morph/blend)
+- audio system
+- shaders compilation
+
+efficiency:
+
+- batching draw calls (octrees and others)
+- deferred rendering
+- LOD (level of detail) (mipmaps)
+- multithreading
+
+code:
+
+- i think that scenes should be separate from assets (sceneManager in unity)
+- default materials should be special assets because they have special permissions (can't be modified or deleted)
+- gestire la roba delle inclusioni

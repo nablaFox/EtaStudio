@@ -11,6 +11,11 @@ struct TransformComponent;
 struct RenderComponent;
 struct CameraComponent;
 
+struct HierarchyComponent {
+	entt::entity parent = entt::null;
+	std::vector<entt::entity> children;
+};
+
 class EtaScene : public EtaAsset {
 public:
 	using EtaAsset::EtaAsset;
@@ -59,14 +64,23 @@ public:
 	}
 
 	void removeEntity(entt::entity entity) { m_entities.destroy(entity); }
+	// TODO: remove parent
+	void setParent(entt::entity child, entt::entity parent);
+	void updateTransforms();
+
+	void setPosition(entt::entity entity, glm::vec3 position);
+	void setRotation(entt::entity entity, glm::quat rotation);
+	void setScale(entt::entity entity, glm::vec3 scale);
+
+	void updatePosition(entt::entity entity, glm::vec3 position);
 
 	void addRenderComponent(entt::entity);
 	void addRenderComponent(entt::entity entity, RenderComponent component);
 	void addMeshComponent(entt::entity entity, str meshName);
 
-	void addDefaultCamera();
-	void addDefaultOrtographicCamera();
-
+	entt::entity addDefaultCamera(TransformComponent transform);
+	entt::entity addDefaultCamera();
+	entt::entity addDefaultOrtographicCamera();
 	entt::entity getActiveCamera();
 
 	SceneSettings& settings() { return m_sceneSettings; }
@@ -76,6 +90,9 @@ private:
 	entt::entity m_activeCamera = entt::null;
 
 	SceneSettings m_sceneSettings;
+
+private:
+	void markDirty(entt::entity entity);
 };
 
 };	// namespace eta

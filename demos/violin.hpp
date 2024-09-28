@@ -17,6 +17,7 @@ public:
 	void setup() override {
 		auto violin = addEntity({
 			.position = glm::vec3(0.0f, -2.5f, 3.0f),
+			.rotation = glm::angleAxis(glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f)),
 			.scale = glm::vec3(0.1f),
 		});
 

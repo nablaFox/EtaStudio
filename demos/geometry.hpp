@@ -44,12 +44,12 @@ public:
 		}
 
 		std::vector<uint32_t> indices = {
-			0, 1, 2, 2, 3, 0, // back face
-			4, 5, 6, 6, 7, 4, // front face
-			0, 1, 5, 5, 4, 0, // bottom face
-			2, 3, 7, 7, 6, 2, // top face
-			0, 3, 7, 7, 4, 0, // left face
-			1, 2, 6, 6, 5, 1  // right face
+			0, 1, 2, 2, 3, 0,  // back face
+			4, 5, 6, 6, 7, 4,  // front face
+			0, 1, 5, 5, 4, 0,  // bottom face
+			2, 3, 7, 7, 6, 2,  // top face
+			0, 3, 7, 7, 4, 0,  // left face
+			1, 2, 6, 6, 5, 1   // right face
 		};
 
 		setVertices(vertices);
@@ -64,11 +64,11 @@ public:
 		std::vector<Vertex> vertices(5);
 
 		// Define the vertices for the pyramid
-		vertices[0].position = {0.0f, 0.5f, 0.0f};	  // Top vertex
-		vertices[1].position = {-0.5f, -0.5f, 0.5f};  // Base front-left
-		vertices[2].position = {0.5f, -0.5f, 0.5f};	  // Base front-right
-		vertices[3].position = {0.5f, -0.5f, -0.5f};  // Base back-right
-		vertices[4].position = {-0.5f, -0.5f, -0.5f}; // Base back-left
+		vertices[0].position = {0.0f, 0.5f, 0.0f};	   // Top vertex
+		vertices[1].position = {-0.5f, -0.5f, 0.5f};   // Base front-left
+		vertices[2].position = {0.5f, -0.5f, 0.5f};	   // Base front-right
+		vertices[3].position = {0.5f, -0.5f, -0.5f};   // Base back-right
+		vertices[4].position = {-0.5f, -0.5f, -0.5f};  // Base back-left
 
 		// Define UV coordinates (example values)
 		for (int i = 0; i < 5; ++i) {
@@ -83,18 +83,18 @@ public:
 		std::vector<uint32_t> indices = {
 			1, 2, 3, 3, 4, 1,
 			// Faces (triangles)
-			0, 1, 2, // Front face
-			0, 2, 3, // Right face
-			0, 3, 4, // Back face
-			0, 4, 1	 // Left face
+			0, 1, 2,  // Front face
+			0, 2, 3,  // Right face
+			0, 3, 4,  // Back face
+			0, 4, 1	  // Left face
 		};
 
 		std::vector<MeshSurface> surfaces(5);
-		surfaces[0] = {0, 6};  // Base
-		surfaces[1] = {6, 3};  // Front face
-		surfaces[2] = {9, 3};  // Right face
-		surfaces[3] = {12, 3}; // Back face
-		surfaces[4] = {15, 3}; // Left face
+		surfaces[0] = {0, 6};	// Base
+		surfaces[1] = {6, 3};	// Front face
+		surfaces[2] = {9, 3};	// Right face
+		surfaces[3] = {12, 3};	// Back face
+		surfaces[4] = {15, 3};	// Left face
 
 		setVertices(vertices);
 		setIndices(indices);
@@ -111,24 +111,19 @@ public:
 
 		addRenderComponent(cube);
 		addMeshComponent(cube, "CubeMesh");
+		// addComponent<RotationComponent>(cube, 0.5f, glm::vec3(1.0f, 0.0f, 0.0f));
 
-		addComponent<RotationComponent>(cube,						  // entity
-										0.5f,						  // rotationSpeed
-										glm::vec3(1.0f, 0.0f, 0.0f)); // rotationAxis
-
-		addComponent<InputComponent>(cube);
-
-		auto pyramid = addEntity({
-			.position = glm::vec3(-1.5f, 0.0f, 0.0f),
-		});
-
+		auto pyramid = addEntity({.position = glm::vec3(0.0f, 1.0f, 0.f)});
 		addRenderComponent(pyramid);
 		addMeshComponent(pyramid, "PyramidMesh");
-
-		addComponent<RotationComponent>(pyramid, 0.5f, glm::vec3(0.0f, 1.0f, 0.0f));
+		// addComponent<RotationComponent>(pyramid, 0.5f, glm::vec3(0.0f, 1.0f, 0.0f));
 		addComponent<InputComponent>(pyramid);
-		addComponent<MovementComponent>(pyramid, 1.0f);
+		addComponent<MovementComponent>(cube, 1.0f);
 
-		addDefaultCamera();
+		setParent(pyramid, cube);
+
+		addDefaultCamera({
+			.position = glm::vec3(0.0f, -1.0f, 5.0f),
+		});
 	};
 };

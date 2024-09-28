@@ -12,7 +12,7 @@ void EtaRenderingSystem::awake() {
 	EtaDevice::GraphicsPipelineConfigs baseRenderingConfigs = {
 		.inputTopology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
 		.polygonMode = VK_POLYGON_MODE_FILL,
-		.cullMode = VK_CULL_MODE_NONE,
+		.cullMode = VK_CULL_MODE_BACK_BIT,
 		.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE,
 	};
 
@@ -31,6 +31,8 @@ void EtaRenderingSystem::awake() {
 
 void EtaRenderingSystem::update(float dt) {
 	EtaScene::SceneSettings sceneSettings = currentScene().settings();
+
+	currentScene().updateTransforms();
 
 	currentScene().getEntities<CameraComponent, TransformComponent>().each([&](auto entity, CameraComponent& camera,
 																			   TransformComponent& transform) {
@@ -65,7 +67,7 @@ void EtaRenderingSystem::render3D() {
 
 		auto mesh = meshInfo.meshAsset;
 		auto material = renderingInfo.material;
-		auto transformMatrix = calculateTransformMatrix(transform);
+		auto transformMatrix = transform.m_cachedTransform;
 
 		if (!mesh || !material)
 			continue;
